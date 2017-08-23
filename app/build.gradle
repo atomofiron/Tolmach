@@ -23,11 +23,14 @@ android {
     }
 }
 
+def supportLibVersion = "25.3.1"
+def retrofit2LibVersion = "2.1.0"
+
 dependencies {
-    compile 'com.yandex.android:speechkit:2.5.0'
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha8'
-    compile 'com.android.support:design:25.3.1'
-    compile 'com.squareup.retrofit2:retrofit:2.1.0'
-    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
+    compile "com.yandex.android:speechkit:2.5.0"
+    compile "com.android.support:appcompat-v7:$supportLibVersion"
+    compile "com.android.support:design:$supportLibVersion"
+    compile "com.android.support:cardview-v7:$supportLibVersion"
+    compile "com.squareup.retrofit2:retrofit:$retrofit2LibVersion"
+    compile "com.squareup.retrofit2:converter-gson:$retrofit2LibVersion"
 }
