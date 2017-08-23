@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="io.atomofiron.tolmach.AboutFragment"
+    tools:context="io.atomofiron.tolmach.fragments.AboutFragment"
     android:orientation="vertical"
     android:gravity="bottom|center">
 

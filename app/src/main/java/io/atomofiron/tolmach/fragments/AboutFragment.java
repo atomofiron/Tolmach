@@ -1,4 +1,4 @@
-package io.atomofiron.tolmach;
+package io.atomofiron.tolmach.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,6 +11,8 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import io.atomofiron.tolmach.R;
 
 public class AboutFragment extends Fragment {
 
