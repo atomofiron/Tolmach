@@ -16,10 +16,14 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        all {
+            buildConfigField "String", "API_KEY", "\"ddac6326-f75a-4d4b-9b0e-34f068efb7f3\""
+        }
     }
 }
 
 dependencies {
+    compile 'com.yandex.android:speechkit:2.5.0'
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha8'
     compile 'com.android.support:design:25.3.1'

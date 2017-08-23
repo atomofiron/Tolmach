@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Tolmach</string>
+    <string name="about">About</string>
+    <string name="use_service">&lt;a href=\'https://tech.yandex.ru/speechkit/mobilesdk/\'>Использует сервис \"Yandex SpeechKit Mobile SDK\"&lt;a></string>
 </resources>

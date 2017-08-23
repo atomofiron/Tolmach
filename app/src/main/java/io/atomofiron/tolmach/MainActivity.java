@@ -1,13 +1,15 @@
 package io.atomofiron.tolmach;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
+import android.view.Menu;
+import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
+	private FragmentManager fragmentManager = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -16,13 +18,33 @@ public class MainActivity extends AppCompatActivity {
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
-		FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-		fab.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-						.setAction("Action", null).show();
-			}
-		});
+		fragmentManager = getSupportFragmentManager();
+		if (fragmentManager.findFragmentById(R.id.container) == null)
+			fragmentManager.beginTransaction()
+					.replace(R.id.container, new MainFragment())
+					.commitAllowingStateLoss();
+	}
+
+	private void addFragment(Fragment fragment) {
+		fragmentManager.beginTransaction()
+				.addToBackStack(null)
+				.replace(R.id.container, fragment)
+				.commitAllowingStateLoss();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.main, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.about:
+				addFragment(new AboutFragment());
+				break;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 }
