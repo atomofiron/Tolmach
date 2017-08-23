@@ -18,6 +18,7 @@ android {
         }
         all {
             buildConfigField "String", "API_KEY", "\"ddac6326-f75a-4d4b-9b0e-34f068efb7f3\""
+            buildConfigField "String", "API_KEY_TRANSLATE", "\"trnsl.1.1.20170823T220528Z.2985f46f46c1d814.a39013f89fc9b955ecf04619167dfbf44b03eeaf\""
         }
     }
 }
@@ -27,4 +28,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha8'
     compile 'com.android.support:design:25.3.1'
+    compile 'com.squareup.retrofit2:retrofit:2.1.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
 }
