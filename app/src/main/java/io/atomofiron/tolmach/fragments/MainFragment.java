@@ -29,15 +29,13 @@ import io.atomofiron.tolmach.retrofit.Api;
 import io.atomofiron.tolmach.retrofit.LangsResponse;
 import io.atomofiron.tolmach.retrofit.TranslateResponse;
 import io.atomofiron.tolmach.utils.Lang;
+import io.atomofiron.tolmach.utils.recognition.VoiceRecognizer;
+import io.atomofiron.tolmach.utils.recognition.YandexRecognizer;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import ru.yandex.speechkit.Error;
-import ru.yandex.speechkit.Recognition;
-import ru.yandex.speechkit.Recognizer;
-import ru.yandex.speechkit.RecognizerListener;
 
-public class MainFragment extends Fragment implements RecognizerListener, ButtonList.OnItemSelectedListener {
+public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListener, ButtonList.OnItemSelectedListener {
 	private static String SRC_LANGS_ARG_KEY = "SRC_LANGS_ARG_KEY";
 	private static String DST_LANGS_ARG_KEY = "DST_LANGS_ARG_KEY";
 	private static String SRC_LANG_ARG_KEY = "SRC_LANG_ARG_KEY";
@@ -53,7 +51,7 @@ public class MainFragment extends Fragment implements RecognizerListener, Button
 
 	private SharedPreferences sp;
 	private Api retrofit;
-	private Recognizer recognizer = null;
+	private VoiceRecognizer recognizer = null;
 	private PhraseAdapter phraseAdapter;
 	private TextToSpeech textToSpeech;
 
@@ -78,6 +76,7 @@ public class MainFragment extends Fragment implements RecognizerListener, Button
 		I.log("onCreate()");
 		sp = I.sp(getActivity());
 		textToSpeech = new TextToSpeech(getActivity(), null);
+		recognizer = new YandexRecognizer(this);
 	}
 
 	@Override
@@ -85,9 +84,7 @@ public class MainFragment extends Fragment implements RecognizerListener, Button
 		super.onDestroy();
 		I.log("onDestroy()");
 		textToSpeech.shutdown();
-
-		if (recognizer != null)
-			recognizer.cancel();
+		recognizer.cancel();
 	}
 
 	@Override
@@ -172,8 +169,7 @@ public class MainFragment extends Fragment implements RecognizerListener, Button
 
 	private void onSrcLangChanged() {
 		frb.setEnabled(false);
-		if (recognizer != null)
-			recognizer.cancel();
+		recognizer.cancel();
 
 		buttonSrcList.setEnabled(false);
 		buttonDstList.setEnabled(false);
@@ -207,43 +203,33 @@ public class MainFragment extends Fragment implements RecognizerListener, Button
 
 	private void start() {
 		frb.setActivated(true);
-		recognizer = Recognizer.create(buttonSrcList.getCurrent().code, Recognizer.Model.NOTES, this, true);
-		try {
-			recognizer.start();
-		} catch (SecurityException ignored) {
+
+		if (!recognizer.start(buttonSrcList.getCurrent().code))
 			reset();
-		}
 	}
 
 	private void reset() {
-		I.log("reset()");
+		I.log("cancel()");
 		frb.setActivated(false);
 		frb.setEnabled(true);
 
-		if (recognizer != null)
-			recognizer.cancel();
+		recognizer.cancel();
 	}
 
 	@Override
-	public void onRecordingBegin(Recognizer recognizer) {}
-	@Override
-	public void onSpeechDetected(Recognizer recognizer) {}
-	@Override
-	public void onSpeechEnds(Recognizer recognizer) {}
-	@Override
-	public void onRecordingDone(Recognizer recognizer) {}
-	@Override
-	public void onSoundDataRecorded(Recognizer recognizer, byte[] bytes) {}
-
-	@Override
-	public void onPowerUpdated(Recognizer recognizer, float v) {
+	public void onPowerUpdated(float v) {
 		// todo visualisation
 	}
 
 	@Override
-	public void onPartialResults(Recognizer recognizer, Recognition recognition, boolean endOfUtterance) {
-		if (endOfUtterance)
-			translate(recognition.getBestResultText());
+	public void onPartialResults(String text) {
+		translate(text);
+	}
+
+	@Override
+	public void onError(String message) {
+		I.log("error: " + message);
+			Snackbar.make(anchor, message, Snackbar.LENGTH_LONG).show();
 	}
 
 	private void translate(final String text) {
@@ -264,17 +250,6 @@ public class MainFragment extends Fragment implements RecognizerListener, Button
 				Snackbar.make(anchor, t.getMessage(), Snackbar.LENGTH_LONG).show();
 			}
 		});
-	}
-
-	@Override
-	public void onRecognitionDone(Recognizer recognizer, Recognition recognition) {
-	}
-
-	@Override
-	public void onError(Recognizer recognizer, Error error) {
-		I.log("error: "+error.getString());
-		if (error.getCode() != Error.ERROR_CANCELED)
-			Snackbar.make(anchor, error.getString(), Snackbar.LENGTH_LONG).show();
 	}
 
 	@Override
