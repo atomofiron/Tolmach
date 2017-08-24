@@ -98,9 +98,9 @@ public class MainFragment extends Fragment implements RecognizerListener, Button
 
 		fragmentView = inflater.inflate(R.layout.fragment_main, container, false);
 
-		TextView yandex_translate = (TextView) fragmentView.findViewById(R.id.yandex_translate);
-		yandex_translate.setText(Html.fromHtml(getString(R.string.use_service_translate)));
-		yandex_translate.setMovementMethod(LinkMovementMethod.getInstance());
+		TextView yandexTranslateLabel = (TextView) fragmentView.findViewById(R.id.yandex_translate);
+		yandexTranslateLabel.setText(Html.fromHtml(getString(R.string.use_service_translate)));
+		yandexTranslateLabel.setMovementMethod(LinkMovementMethod.getInstance());
 
 		frb = (FloatingActionButton) fragmentView.findViewById(R.id.fab);
 		frb.setOnClickListener(new View.OnClickListener() {
