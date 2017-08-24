@@ -6,4 +6,5 @@
     <string name="retry">Ещё раз</string>
     <string name="cancel">Отмена</string>
     <string name="translate_error">Ошибка перевода</string>
+    <string name="vocalize">Озвучивать</string>
 </resources>

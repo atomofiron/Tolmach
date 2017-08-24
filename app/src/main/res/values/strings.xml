@@ -6,4 +6,5 @@
     <string name="retry">Retry</string>
     <string name="cancel">Cancel</string>
     <string name="translate_error">Translate error</string>
+    <string name="vocalize">Vocalize</string>
 </resources>

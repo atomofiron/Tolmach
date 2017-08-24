@@ -1,5 +1,7 @@
 package io.atomofiron.tolmach.fragments;
 
+import android.speech.tts.TextToSpeech;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -21,6 +23,7 @@ import io.atomofiron.tolmach.I;
 import io.atomofiron.tolmach.R;
 import io.atomofiron.tolmach.adapters.PhraseAdapter;
 import io.atomofiron.tolmach.custom.ButtonList;
+import io.atomofiron.tolmach.utils.Phrase;
 import io.atomofiron.tolmach.retrofit.Api;
 import io.atomofiron.tolmach.retrofit.LangsResponse;
 import io.atomofiron.tolmach.retrofit.TranslateResponse;
@@ -45,6 +48,7 @@ public class MainFragment extends Fragment implements RecognizerListener, Button
 	private Api retrofit;
 	private Recognizer recognizer = null;
 	private PhraseAdapter phraseAdapter;
+	private TextToSpeech textToSpeech;
 
 	private boolean languagesCurrentlyLoaded = false;
 
@@ -61,6 +65,18 @@ public class MainFragment extends Fragment implements RecognizerListener, Button
 
 	public MainFragment() {
 		retrofit = App.getRetrofitApi();
+	}
+
+	@Override
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		textToSpeech = new TextToSpeech(getActivity(), null);
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		textToSpeech.shutdown();
 	}
 
 	@Override
@@ -98,7 +114,7 @@ public class MainFragment extends Fragment implements RecognizerListener, Button
 
 		RecyclerView recyclerView = (RecyclerView) fragmentView.findViewById(R.id.recycler_view);
 		recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
-		phraseAdapter = new PhraseAdapter();
+		phraseAdapter = new PhraseAdapter(textToSpeech);
 		recyclerView.setAdapter(phraseAdapter);
 
 		return fragmentView;
@@ -177,13 +193,18 @@ public class MainFragment extends Fragment implements RecognizerListener, Button
 			translate(recognition.getBestResultText());
 	}
 
-	private void translate(String text) {
+	private void translate(final String text) {
 		I.log("translate: " + text);
-		retrofit.translate(BuildConfig.API_KEY_TRANSLATE, text, buttonDstList.getCurrent().code, I.TEXT_FORMAT_PLAIN).enqueue(new Callback<TranslateResponse>() {
+		final String langCode = buttonDstList.getCurrent().code;
+		retrofit.translate(BuildConfig.API_KEY_TRANSLATE, text, langCode, I.TEXT_FORMAT_PLAIN).enqueue(new Callback<TranslateResponse>() {
 			public void onResponse(Call<TranslateResponse> call, Response<TranslateResponse> response) {
-				if (response.isSuccessful())
-					phraseAdapter.addPhrase(response.body().getText().get(0));
-				else
+				if (response.isSuccessful()) {
+					Phrase phrase = new Phrase(text, response.body().getText().get(0), langCode);
+					phraseAdapter.addPhrase(phrase);
+
+					if (I.sp(getActivity()).getBoolean(I.PREF_AUTO_VOCALIZE, false))
+						phrase.vocalize(textToSpeech);
+				} else
 					onFailure(call, new Throwable(response.message()));
 			}
 			public void onFailure(Call<TranslateResponse> call, Throwable t) {

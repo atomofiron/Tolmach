@@ -34,12 +34,4 @@
         android:textColor="@color/colorWhite"
         android:enabled="false"
         />
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_volume"
-        android:layout_weight="0"
-        style="?borderlessButtonStyle"
-        android:visibility="gone"
-        />
 </LinearLayout>

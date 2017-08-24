@@ -1,5 +1,6 @@
 package io.atomofiron.tolmach;
 
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.LocaleList;
@@ -18,6 +19,7 @@ import io.atomofiron.tolmach.fragments.MainFragment;
 import io.atomofiron.tolmach.utils.Lang;
 
 public class MainActivity extends AppCompatActivity {
+	private SharedPreferences sp;
 	private FragmentManager fragmentManager = null;
 
 	@Override
@@ -26,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_main);
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
+
+		sp = I.sp(this);
 
 		ArrayList<Lang> srcLangs = getSrcLangs();
 		String defaultCode = getResources().getConfiguration().locale.getLanguage();
@@ -55,12 +59,14 @@ public class MainActivity extends AppCompatActivity {
 		ArrayList<Lang> langs = new ArrayList<>();
 
 		for (String code : I.SPEECH_CODES)
-			langs.add(new Lang(code, code));
+			langs.add(new Lang(code, code, code));
 
 		for (Locale locale : Locale.getAvailableLocales())
 			for (Lang lang : langs)
-				if (lang.code.equals(locale.getLanguage()))
+				if (lang.code.equals(locale.getLanguage())) {
 					lang.name = locale.getDisplayLanguage();
+					lang.country = locale.getCountry();
+				}
 
 		return langs;
 	}
@@ -75,7 +81,14 @@ public class MainActivity extends AppCompatActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.main, menu);
+		updateVocalizeMenuItamState(menu.findItem(R.id.auto_vocalize), sp.getBoolean(I.PREF_AUTO_VOCALIZE, false));
 		return super.onCreateOptionsMenu(menu);
+	}
+
+	private void updateVocalizeMenuItamState(MenuItem item, boolean on) {
+		// drawable selector state_activated/state_checked don't work
+		item.setChecked(on);
+		item.setIcon(on ? R.drawable.ic_volume_on : R.drawable.ic_volume_off);
 	}
 
 	@Override
@@ -83,6 +96,11 @@ public class MainActivity extends AppCompatActivity {
 		switch (item.getItemId()) {
 			case R.id.about:
 				addFragment(new AboutFragment());
+				break;
+			case R.id.auto_vocalize:
+				boolean checked = !item.isChecked();
+				updateVocalizeMenuItamState(item, checked);
+				sp.edit().putBoolean(I.PREF_AUTO_VOCALIZE, checked).apply();
 				break;
 		}
 		return super.onOptionsItemSelected(item);

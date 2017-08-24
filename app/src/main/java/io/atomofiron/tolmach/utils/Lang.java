@@ -6,22 +6,33 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 
 public class Lang implements Parcelable, Cloneable {
-	public String code;
 	public String name;
+	public String code;
+	public String country;
 
 	private Lang(Lang lang) {
-		this.code = lang.code == null ? "" : lang.code;
 		this.name = lang.name == null ? "" : lang.name;
+		this.code = lang.code == null ? "" : lang.code;
 	}
 
 	public Lang(String code, String name) {
-		this.code = code == null ? "" : code;
 		this.name = name == null ? "" : name;
+		this.code = code == null ? "" : code;
+	}
+
+	public Lang(String code, String name, String country) {
+		this.name = name == null ? "" : name;
+		this.code = code == null ? "" : code;
+		this.country= country == null ? "" : country;
 	}
 
 	private Lang(Parcel in) {
 		code = in.readString();
 		name = in.readString();
+	}
+
+	public String getFullCode() {
+		return code + "-" + country;
 	}
 
 	public static final Creator<Lang> CREATOR = new Creator<Lang>() {
