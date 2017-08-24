@@ -40,6 +40,16 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 		notifyDataSetChanged();
 	}
 
+	public void setPhrases(ArrayList<Phrase> phrases) {
+		this.phrases.clear();
+		this.phrases.addAll(phrases);
+		notifyDataSetChanged();
+	}
+
+	public ArrayList<Phrase> getPhrases() {
+		return phrases;
+	}
+
 	class Holder extends RecyclerView.ViewHolder implements View.OnClickListener {
 		TextView text;
 

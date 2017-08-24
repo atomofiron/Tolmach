@@ -55,6 +55,10 @@ public class ButtonList extends android.support.v7.widget.AppCompatButton {
 		updateText();
 	}
 
+	public ArrayList<Lang> getList() {
+		return list;
+	}
+
 	public Lang getCurrent() {
 		return current;
 	}

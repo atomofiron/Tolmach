@@ -1,5 +1,6 @@
 package io.atomofiron.tolmach.fragments;
 
+import android.content.SharedPreferences;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -38,19 +39,23 @@ import ru.yandex.speechkit.RecognizerListener;
 
 public class MainFragment extends Fragment implements RecognizerListener, ButtonList.OnItemSelectedListener {
 	private static String SRC_LANGS_ARG_KEY = "SRC_LANGS_ARG_KEY";
-	private static String SRC_LANG_ARG_KEY = "SRC_LANG_ARG_KEY ";
+	private static String DST_LANGS_ARG_KEY = "DST_LANGS_ARG_KEY";
+	private static String SRC_LANG_ARG_KEY = "SRC_LANG_ARG_KEY";
+	private static String DST_LANG_ARG_KEY = "DST_LANG_ARG_KEY";
+	private static String PHRASES_KEY = "PHRASES_KEY";
+	private static String RECOGNIZER_STARTED_KEY = "RECOGNIZER_STARTED_KEY";
+	private static String DST_LANGUAGES_ARE_LOADED_KEY = "DST_LANGUAGES_ARE_LOADED_KEY";
 	private View fragmentView = null;
 	private FloatingActionButton frb;
 	private View anchor;
 	private ButtonList buttonSrcList;
 	private ButtonList buttonDstList;
 
+	private SharedPreferences sp;
 	private Api retrofit;
 	private Recognizer recognizer = null;
 	private PhraseAdapter phraseAdapter;
 	private TextToSpeech textToSpeech;
-
-	private boolean languagesCurrentlyLoaded = false;
 
 	public static MainFragment newInstance(ArrayList<Lang> srcLangs, Lang srcLang) {
 
@@ -70,17 +75,24 @@ public class MainFragment extends Fragment implements RecognizerListener, Button
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		I.log("onCreate()");
+		sp = I.sp(getActivity());
 		textToSpeech = new TextToSpeech(getActivity(), null);
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		I.log("onDestroy()");
 		textToSpeech.shutdown();
+
+		if (recognizer != null)
+			recognizer.cancel();
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		I.log("onCreateView()");
 		if (fragmentView != null)
 			return fragmentView;
 
@@ -93,13 +105,10 @@ public class MainFragment extends Fragment implements RecognizerListener, Button
 		frb = (FloatingActionButton) fragmentView.findViewById(R.id.fab);
 		frb.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				if (!v.isActivated()) {
-					frb.setActivated(true);
-					createRecognizerAndStart();
-				} else {
-					v.setEnabled(false);
-					recognizer.cancel();
-				}
+				if (!v.isActivated())
+					start();
+				else
+					reset();
 			}
 		});
 
@@ -107,21 +116,61 @@ public class MainFragment extends Fragment implements RecognizerListener, Button
 
 		buttonSrcList = (ButtonList) fragmentView.findViewById(R.id.src);
 		buttonDstList = (ButtonList) fragmentView.findViewById(R.id.dst);
-		buttonSrcList.setOnItemSelectedListener(this);
+		if (savedInstanceState == null) {
+			buttonDstList.setEnabled(false);
+			buttonSrcList.setOnItemSelectedListener(this);
+			buttonSrcList.setList(Lang.parce(getArguments().getParcelableArrayList(SRC_LANGS_ARG_KEY)));
+			buttonSrcList.setCurrent(Lang.parce(getArguments().getParcelable(SRC_LANG_ARG_KEY)));
+		} else {
+			buttonSrcList.setList(Lang.parce(savedInstanceState.getParcelableArrayList(SRC_LANGS_ARG_KEY)));
+			buttonSrcList.setCurrent(Lang.parce(savedInstanceState.getParcelable(SRC_LANG_ARG_KEY)));
+			buttonDstList.setList(Lang.parce(savedInstanceState.getParcelableArrayList(DST_LANGS_ARG_KEY)));
+			buttonDstList.setCurrent(Lang.parce(savedInstanceState.getParcelable(DST_LANG_ARG_KEY)));
+			buttonSrcList.setOnItemSelectedListener(this);
+		}
 		buttonDstList.setOnItemSelectedListener(this);
-		buttonSrcList.setList(Lang.parce(getArguments().getParcelableArrayList(SRC_LANGS_ARG_KEY)));
-		buttonSrcList.setCurrent(Lang.parce(getArguments().getParcelable(SRC_LANG_ARG_KEY)));
 
 		RecyclerView recyclerView = (RecyclerView) fragmentView.findViewById(R.id.recycler_view);
 		recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
 		phraseAdapter = new PhraseAdapter(textToSpeech);
 		recyclerView.setAdapter(phraseAdapter);
 
+		if (savedInstanceState != null) {
+			phraseAdapter.setPhrases(Phrase.parce(savedInstanceState.getParcelableArrayList(PHRASES_KEY)));
+
+		}
+
 		return fragmentView;
 	}
 
+	@Override
+	public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+		super.onViewStateRestored(savedInstanceState);
+		I.log("onViewStateRestored()");
+
+		if (savedInstanceState == null)
+			return;
+
+		if (!savedInstanceState.getBoolean(DST_LANGUAGES_ARE_LOADED_KEY, false))
+			onSrcLangChanged();
+		else if (savedInstanceState.getBoolean(RECOGNIZER_STARTED_KEY, false))
+			start();
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		I.log("onSaveInstanceState()");
+		outState.putParcelable(SRC_LANG_ARG_KEY, buttonSrcList.getCurrent());
+		outState.putParcelable(DST_LANG_ARG_KEY, buttonDstList.getCurrent());
+		outState.putParcelableArrayList(SRC_LANGS_ARG_KEY, buttonSrcList.getList());
+		outState.putParcelableArrayList(DST_LANGS_ARG_KEY, buttonDstList.getList());
+		outState.putParcelableArrayList(PHRASES_KEY, phraseAdapter.getPhrases());
+		outState.putBoolean(RECOGNIZER_STARTED_KEY, frb.isActivated());
+		outState.putBoolean(DST_LANGUAGES_ARE_LOADED_KEY, buttonDstList.isEnabled());
+		super.onSaveInstanceState(outState);
+	}
+
 	private void onSrcLangChanged() {
-		languagesCurrentlyLoaded = true;
 		frb.setEnabled(false);
 		if (recognizer != null)
 			recognizer.cancel();
@@ -132,15 +181,14 @@ public class MainFragment extends Fragment implements RecognizerListener, Button
 		retrofit.getLangs(BuildConfig.API_KEY_TRANSLATE, buttonSrcList.getCurrent().code).enqueue(new Callback<LangsResponse>() {
 			public void onResponse(Call<LangsResponse> call, Response<LangsResponse> response) {
 				I.log("onResponse()");
-				languagesCurrentlyLoaded = false;
 
 				if (response.isSuccessful()) {
 					buttonSrcList.setEnabled(true);
 					buttonDstList.setList(response.body().getLangs(buttonSrcList.getCurrent().code));
 
 					if (buttonDstList.getCurrent() != null) {
-						resetButton();
 						buttonDstList.setEnabled(true);
+						reset();
 					}
 				} else
 					onFailure(call, new Throwable(response.message()));
@@ -157,18 +205,23 @@ public class MainFragment extends Fragment implements RecognizerListener, Button
 		});
 	}
 
-	private void createRecognizerAndStart() {
+	private void start() {
+		frb.setActivated(true);
 		recognizer = Recognizer.create(buttonSrcList.getCurrent().code, Recognizer.Model.NOTES, this, true);
 		try {
 			recognizer.start();
 		} catch (SecurityException ignored) {
-			resetButton();
+			reset();
 		}
 	}
 
-	private void resetButton() {
+	private void reset() {
+		I.log("reset()");
 		frb.setActivated(false);
 		frb.setEnabled(true);
+
+		if (recognizer != null)
+			recognizer.cancel();
 	}
 
 	@Override
@@ -202,7 +255,7 @@ public class MainFragment extends Fragment implements RecognizerListener, Button
 					Phrase phrase = new Phrase(text, response.body().getText().get(0), langCode);
 					phraseAdapter.addPhrase(phrase);
 
-					if (I.sp(getActivity()).getBoolean(I.PREF_AUTO_VOCALIZE, false))
+					if (sp.getBoolean(I.PREF_AUTO_VOCALIZE, false))
 						phrase.vocalize(textToSpeech);
 				} else
 					onFailure(call, new Throwable(response.message()));
@@ -215,16 +268,11 @@ public class MainFragment extends Fragment implements RecognizerListener, Button
 
 	@Override
 	public void onRecognitionDone(Recognizer recognizer, Recognition recognition) {
-		if (!languagesCurrentlyLoaded)
-			resetButton();
 	}
 
 	@Override
 	public void onError(Recognizer recognizer, Error error) {
 		I.log("error: "+error.getString());
-		if (!languagesCurrentlyLoaded)
-			resetButton();
-
 		if (error.getCode() != Error.ERROR_CANCELED)
 			Snackbar.make(anchor, error.getString(), Snackbar.LENGTH_LONG).show();
 	}
