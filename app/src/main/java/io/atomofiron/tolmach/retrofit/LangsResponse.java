@@ -1,9 +1,12 @@
 package io.atomofiron.tolmach.retrofit;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
+import io.atomofiron.tolmach.utils.Lang;
 
 /** Для чтения данных, полученных от API Яндекс.Переводчика. */
 public class LangsResponse {
@@ -28,6 +31,17 @@ public class LangsResponse {
 
 	public JsonObject getLangs() {
 		return langs;
+	}
+
+	public ArrayList<Lang> getLangs(String code) {
+		ArrayList<Lang> pares = new ArrayList<>();
+		for (String d : dirs) {
+			String[] dir = d.split("-");
+
+			if (dir[0].equals(code))
+				pares.add(new Lang(dir[1], langs.get(dir[1]).getAsString()));
+		}
+		return pares;
 	}
 
 }

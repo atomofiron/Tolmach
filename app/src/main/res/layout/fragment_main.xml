@@ -11,20 +11,30 @@
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@+id/yandex_translate"
         />
+
+    <TextView
+        android:id="@+id/yandex_translate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_above="@+id/language_bar"
+        />
+
+    <include layout="@layout/language_bar" />
 
     <io.atomofiron.tolmach.custom.FloatingRecordButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:src="@drawable/record_button"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         app:backgroundTint="@color/record_button"
         app:fabSize="normal"
-        app:enabled="false"
+        android:layout_above="@+id/language_bar"
         />
 
 </RelativeLayout>

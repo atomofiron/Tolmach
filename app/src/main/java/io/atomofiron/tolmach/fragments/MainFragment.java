@@ -6,26 +6,62 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
+import java.util.ArrayList;
+
+import io.atomofiron.tolmach.App;
+import io.atomofiron.tolmach.BuildConfig;
 import io.atomofiron.tolmach.I;
 import io.atomofiron.tolmach.R;
 import io.atomofiron.tolmach.adapters.PhraseAdapter;
+import io.atomofiron.tolmach.custom.ButtonList;
+import io.atomofiron.tolmach.retrofit.Api;
+import io.atomofiron.tolmach.retrofit.LangsResponse;
+import io.atomofiron.tolmach.retrofit.TranslateResponse;
+import io.atomofiron.tolmach.utils.Lang;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import ru.yandex.speechkit.Error;
 import ru.yandex.speechkit.Recognition;
 import ru.yandex.speechkit.Recognizer;
 import ru.yandex.speechkit.RecognizerListener;
 
-public class MainFragment extends Fragment implements RecognizerListener {
+public class MainFragment extends Fragment implements RecognizerListener, ButtonList.OnItemSelectedListener {
+	private static String SRC_LANGS_ARG_KEY = "SRC_LANGS_ARG_KEY";
+	private static String SRC_LANG_ARG_KEY = "SRC_LANG_ARG_KEY ";
 	private View fragmentView = null;
 	private FloatingActionButton frb;
+	private View anchor;
+	private ButtonList buttonSrcList;
+	private ButtonList buttonDstList;
 
+	private Api retrofit;
 	private Recognizer recognizer = null;
 	private PhraseAdapter phraseAdapter;
 
-	public MainFragment() {}
+	private boolean languagesCurrentlyLoaded = false;
+
+	public static MainFragment newInstance(ArrayList<Lang> srcLangs, Lang srcLang) {
+
+		Bundle args = new Bundle();
+		args.putParcelableArrayList(SRC_LANGS_ARG_KEY, srcLangs);
+		args.putParcelable(SRC_LANG_ARG_KEY, srcLang);
+
+		MainFragment fragment = new MainFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
+	public MainFragment() {
+		retrofit = App.getRetrofitApi();
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -33,6 +69,10 @@ public class MainFragment extends Fragment implements RecognizerListener {
 			return fragmentView;
 
 		fragmentView = inflater.inflate(R.layout.fragment_main, container, false);
+
+		TextView yandex_translate = (TextView) fragmentView.findViewById(R.id.yandex_translate);
+		yandex_translate.setText(Html.fromHtml(getString(R.string.use_service_translate)));
+		yandex_translate.setMovementMethod(LinkMovementMethod.getInstance());
 
 		frb = (FloatingActionButton) fragmentView.findViewById(R.id.fab);
 		frb.setOnClickListener(new View.OnClickListener() {
@@ -47,6 +87,15 @@ public class MainFragment extends Fragment implements RecognizerListener {
 			}
 		});
 
+		anchor = fragmentView.findViewById(R.id.language_bar);
+
+		buttonSrcList = (ButtonList) fragmentView.findViewById(R.id.src);
+		buttonDstList = (ButtonList) fragmentView.findViewById(R.id.dst);
+		buttonSrcList.setOnItemSelectedListener(this);
+		buttonDstList.setOnItemSelectedListener(this);
+		buttonSrcList.setList(Lang.parce(getArguments().getParcelableArrayList(SRC_LANGS_ARG_KEY)));
+		buttonSrcList.setCurrent(Lang.parce(getArguments().getParcelable(SRC_LANG_ARG_KEY)));
+
 		RecyclerView recyclerView = (RecyclerView) fragmentView.findViewById(R.id.recycler_view);
 		recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
 		phraseAdapter = new PhraseAdapter();
@@ -55,8 +104,45 @@ public class MainFragment extends Fragment implements RecognizerListener {
 		return fragmentView;
 	}
 
+	private void onSrcLangChanged() {
+		languagesCurrentlyLoaded = true;
+		frb.setEnabled(false);
+		if (recognizer != null)
+			recognizer.cancel();
+
+		buttonSrcList.setEnabled(false);
+		buttonDstList.setEnabled(false);
+
+		retrofit.getLangs(BuildConfig.API_KEY_TRANSLATE, buttonSrcList.getCurrent().code).enqueue(new Callback<LangsResponse>() {
+			public void onResponse(Call<LangsResponse> call, Response<LangsResponse> response) {
+				I.log("onResponse()");
+				languagesCurrentlyLoaded = false;
+
+				if (response.isSuccessful()) {
+					buttonSrcList.setEnabled(true);
+					buttonDstList.setList(response.body().getLangs(buttonSrcList.getCurrent().code));
+
+					if (buttonDstList.getCurrent() != null) {
+						resetButton();
+						buttonDstList.setEnabled(true);
+					}
+				} else
+					onFailure(call, new Throwable(response.message()));
+			}
+			public void onFailure(Call<LangsResponse> call, Throwable t) {
+				I.log("onFailure() " + t.getMessage());
+				buttonSrcList.setEnabled(true);
+				Snackbar.make(anchor, t.getMessage(), Snackbar.LENGTH_INDEFINITE).setAction(R.string.retry, new View.OnClickListener() {
+					public void onClick(View v) {
+						onSrcLangChanged();
+					}
+				}).show();
+			}
+		});
+	}
+
 	private void createRecognizerAndStart() {
-		recognizer = Recognizer.create(Recognizer.Language.RUSSIAN, Recognizer.Model.NOTES, this, true);
+		recognizer = Recognizer.create(buttonSrcList.getCurrent().code, Recognizer.Model.NOTES, this, true);
 		try {
 			recognizer.start();
 		} catch (SecurityException ignored) {
@@ -88,20 +174,49 @@ public class MainFragment extends Fragment implements RecognizerListener {
 	@Override
 	public void onPartialResults(Recognizer recognizer, Recognition recognition, boolean endOfUtterance) {
 		if (endOfUtterance)
-			phraseAdapter.addPhrase(recognition.getBestResultText());
+			translate(recognition.getBestResultText());
+	}
+
+	private void translate(String text) {
+		I.log("translate: " + text);
+		retrofit.translate(BuildConfig.API_KEY_TRANSLATE, text, buttonDstList.getCurrent().code, I.TEXT_FORMAT_PLAIN).enqueue(new Callback<TranslateResponse>() {
+			public void onResponse(Call<TranslateResponse> call, Response<TranslateResponse> response) {
+				if (response.isSuccessful())
+					phraseAdapter.addPhrase(response.body().getText().get(0));
+				else
+					onFailure(call, new Throwable(response.message()));
+			}
+			public void onFailure(Call<TranslateResponse> call, Throwable t) {
+				Snackbar.make(anchor, t.getMessage(), Snackbar.LENGTH_LONG).show();
+			}
+		});
 	}
 
 	@Override
 	public void onRecognitionDone(Recognizer recognizer, Recognition recognition) {
-		resetButton();
+		if (!languagesCurrentlyLoaded)
+			resetButton();
 	}
 
 	@Override
 	public void onError(Recognizer recognizer, Error error) {
 		I.log("error: "+error.getString());
-		resetButton();
+		if (!languagesCurrentlyLoaded)
+			resetButton();
 
 		if (error.getCode() != Error.ERROR_CANCELED)
-			Snackbar.make(frb, error.getString(), Snackbar.LENGTH_LONG).show();
+			Snackbar.make(anchor, error.getString(), Snackbar.LENGTH_LONG).show();
+	}
+
+	@Override
+	public void onSelected(int buttonId, Lang lang) {
+		switch (buttonId) {
+			case R.id.src:
+				onSrcLangChanged();
+				break;
+			case R.id.dst:
+				// todo translate previous
+				break;
+		}
 	}
 }

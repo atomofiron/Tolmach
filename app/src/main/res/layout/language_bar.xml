@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:id="@+id/language_bar"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:background="@color/colorPrimary"
+    android:gravity="center">
+
+    <io.atomofiron.tolmach.custom.ButtonList
+        android:id="@+id/src"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        style="?borderlessButtonStyle"
+        android:text="src lang"
+        android:textColor="@color/colorWhite"
+        />
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_arrow_right"
+        android:layout_weight="0"
+        />
+    <io.atomofiron.tolmach.custom.ButtonList
+        android:id="@+id/dst"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        style="?borderlessButtonStyle"
+        android:text="dst lang"
+        android:textColor="@color/colorWhite"
+        android:enabled="false"
+        />
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_volume"
+        android:layout_weight="0"
+        style="?borderlessButtonStyle"
+        android:visibility="gone"
+        />
+</LinearLayout>
