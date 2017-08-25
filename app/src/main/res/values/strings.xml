@@ -7,4 +7,8 @@
     <string name="cancel">Cancel</string>
     <string name="translate_error">Translate error</string>
     <string name="vocalize">Vocalize</string>
+    <string name="permission_request">Microphone access is required</string>
+    <string name="no_mic_permission">No access to microphone</string>
+    <string name="ok">OK</string>
+    <string name="quit">Quit</string>
 </resources>

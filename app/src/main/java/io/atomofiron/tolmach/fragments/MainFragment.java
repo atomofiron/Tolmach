@@ -1,6 +1,8 @@
 package io.atomofiron.tolmach.fragments;
 
+import android.Manifest;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -106,7 +108,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 		frb.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				if (!v.isActivated())
-					start();
+					checkPermissionAndStart();
 				else
 					reset();
 			}
@@ -222,6 +224,16 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 				}).show();
 			}
 		});
+	}
+
+	private void checkPermissionAndStart() {
+		if (!I.granted(getActivity(), Manifest.permission.RECORD_AUDIO)) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+				getActivity().requestPermissions(new String[] { Manifest.permission.RECORD_AUDIO }, I.PERMISSION_REQUEST_CODE);
+			else
+				Snackbar.make(anchor, R.string.no_mic_permission, Snackbar.LENGTH_SHORT).show();
+		} else
+			start();
 	}
 
 	private void start() {
