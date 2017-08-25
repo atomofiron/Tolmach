@@ -12,6 +12,9 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -53,7 +56,6 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	private Api retrofit;
 	private VoiceRecognizer recognizer = null;
 	private PhraseAdapter phraseAdapter;
-	private TextToSpeech textToSpeech;
 
 	public static MainFragment newInstance(ArrayList<Lang> srcLangs, Lang srcLang) {
 
@@ -74,8 +76,9 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		I.log("onCreate()");
+		setHasOptionsMenu(true);
+
 		sp = I.sp(getActivity());
-		textToSpeech = new TextToSpeech(getActivity(), null);
 		recognizer = new YandexRecognizer(this);
 	}
 
@@ -83,7 +86,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	public void onDestroy() {
 		super.onDestroy();
 		I.log("onDestroy()");
-		textToSpeech.shutdown();
+		phraseAdapter.shutdown();
 		recognizer.cancel();
 	}
 
@@ -129,8 +132,9 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 
 		RecyclerView recyclerView = (RecyclerView) fragmentView.findViewById(R.id.recycler_view);
 		recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
-		phraseAdapter = new PhraseAdapter(textToSpeech);
+		phraseAdapter = new PhraseAdapter(getActivity());
 		recyclerView.setAdapter(phraseAdapter);
+		phraseAdapter.setAutoVocalize(sp.getBoolean(I.PREF_AUTO_VOCALIZE, false));
 
 		if (savedInstanceState != null) {
 			phraseAdapter.setPhrases(Phrase.parce(savedInstanceState.getParcelableArrayList(PHRASES_KEY)));
@@ -138,6 +142,25 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 		}
 
 		return fragmentView;
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+		updateMenuVocalizeIcon(menu.findItem(R.id.auto_vocalize), sp.getBoolean(I.PREF_AUTO_VOCALIZE, false));
+	}
+
+	private void updateMenuVocalizeIcon(MenuItem item, boolean on) {
+		item.setIcon(on ? R.drawable.ic_volume_on : R.drawable.ic_volume_off);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.auto_vocalize) {
+			phraseAdapter.setAutoVocalize(!phraseAdapter.getAutoVocalize());
+			updateMenuVocalizeIcon(item, phraseAdapter.getAutoVocalize());
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -240,9 +263,6 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 				if (response.isSuccessful()) {
 					Phrase phrase = new Phrase(text, response.body().getText().get(0), langCode);
 					phraseAdapter.addPhrase(phrase);
-
-					if (sp.getBoolean(I.PREF_AUTO_VOCALIZE, false))
-						phrase.vocalize(textToSpeech);
 				} else
 					onFailure(call, new Throwable(response.message()));
 			}

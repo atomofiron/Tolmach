@@ -81,14 +81,7 @@ public class MainActivity extends AppCompatActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.main, menu);
-		updateVocalizeMenuItamState(menu.findItem(R.id.auto_vocalize), sp.getBoolean(I.PREF_AUTO_VOCALIZE, false));
 		return super.onCreateOptionsMenu(menu);
-	}
-
-	private void updateVocalizeMenuItamState(MenuItem item, boolean on) {
-		// drawable selector state_activated/state_checked don't work
-		item.setChecked(on);
-		item.setIcon(on ? R.drawable.ic_volume_on : R.drawable.ic_volume_off);
 	}
 
 	@Override
@@ -96,11 +89,6 @@ public class MainActivity extends AppCompatActivity {
 		switch (item.getItemId()) {
 			case R.id.about:
 				addFragment(new AboutFragment());
-				break;
-			case R.id.auto_vocalize:
-				boolean checked = !item.isChecked();
-				updateVocalizeMenuItamState(item, checked);
-				sp.edit().putBoolean(I.PREF_AUTO_VOCALIZE, checked).apply();
 				break;
 		}
 		return super.onOptionsItemSelected(item);
