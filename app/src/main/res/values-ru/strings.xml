@@ -11,4 +11,5 @@
     <string name="no_mic_permission">Нет доступа к микрофону</string>
     <string name="ok">OК</string>
     <string name="quit">Выйти</string>
+    <string name="remove_all">Очистить</string>
 </resources>

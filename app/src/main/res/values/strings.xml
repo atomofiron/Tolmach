@@ -11,4 +11,5 @@
     <string name="no_mic_permission">No access to microphone</string>
     <string name="ok">OK</string>
     <string name="quit">Quit</string>
+    <string name="remove_all">Remove all</string>
 </resources>

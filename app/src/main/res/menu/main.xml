@@ -15,4 +15,8 @@
         android:icon="@drawable/ic_info"
         app:showAsAction="always"
         />
+    <item
+        android:id="@+id/remove_all"
+        android:title="@string/remove_all"
+        />
 </menu>

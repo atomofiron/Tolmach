@@ -152,9 +152,14 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.auto_vocalize) {
-			phraseAdapter.setAutoVocalize(!phraseAdapter.getAutoVocalize());
-			updateMenuVocalizeIcon(item, phraseAdapter.getAutoVocalize());
+		switch (item.getItemId()) {
+			case R.id.auto_vocalize:
+				phraseAdapter.setAutoVocalize(!phraseAdapter.getAutoVocalize());
+				updateMenuVocalizeIcon(item, phraseAdapter.getAutoVocalize());
+				break;
+			case R.id.remove_all:
+				phraseAdapter.clear();
+				break;
 		}
 		return super.onOptionsItemSelected(item);
 	}

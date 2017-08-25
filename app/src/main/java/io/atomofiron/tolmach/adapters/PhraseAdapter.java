@@ -80,6 +80,15 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 		return phrases;
 	}
 
+	public void clear() {
+		phrases.clear();
+		phrasesMap.clear();
+		notifyDataSetChanged();
+
+		if (textToSpeech.isSpeaking())
+			textToSpeech.stop();
+	}
+
 	private void vocalize(Phrase phrase, boolean addToqQueue) {
 		textToSpeech.setLanguage(new Locale(phrase.code));
 		HashMap<String, String> map = new HashMap<>();
@@ -135,7 +144,7 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 		public void onStart(String utteranceId) {
 			startedId = utteranceId;
 			Phrase phrase = phrasesMap.get(utteranceId);
-			if (!phrase.sound) {
+			if (phrase != null && !phrase.sound) {
 				phrase.sound = true;
 				notifyDataSetChanged();
 			}
@@ -145,7 +154,7 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 		public void onDone(String utteranceId) {
 			startedId = "";
 			Phrase phrase = phrasesMap.get(utteranceId);
-			if (phrase.sound) {
+			if (phrase != null && phrase.sound) {
 				phrase.sound = false;
 				notifyDataSetChanged();
 			}
