@@ -37,7 +37,7 @@ public class AboutFragment extends Fragment {
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		menu.removeItem(R.id.about);
 		super.onCreateOptionsMenu(menu, inflater);
+		menu.clear();
 	}
 }

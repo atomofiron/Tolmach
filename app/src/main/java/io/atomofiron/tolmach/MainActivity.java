@@ -3,7 +3,6 @@ package io.atomofiron.tolmach;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -26,7 +26,6 @@ import io.atomofiron.tolmach.fragments.MainFragment;
 import io.atomofiron.tolmach.utils.Lang;
 
 public class MainActivity extends AppCompatActivity {
-	private SharedPreferences sp;
 	private FragmentManager fragmentManager = null;
 
 	@Override
@@ -36,15 +35,15 @@ public class MainActivity extends AppCompatActivity {
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
-		sp = I.sp(this);
-
-		ArrayList<Lang> srcLangs = getSrcLangs();
-		String defaultCode = getResources().getConfiguration().locale.getLanguage();
 		fragmentManager = getSupportFragmentManager();
-		if (fragmentManager.findFragmentById(R.id.container) == null)
+		if (fragmentManager.findFragmentById(R.id.container) == null) {
+			ArrayList<Lang> srcLangs = getSrcLangs();
+			String defaultCode = getResources().getConfiguration().locale.getLanguage();
+
 			fragmentManager.beginTransaction()
 					.replace(R.id.container, MainFragment.newInstance(srcLangs, getSrcLang(srcLangs, defaultCode)))
 					.commitAllowingStateLoss();
+		}
 	}
 
 	private Lang getSrcLang(ArrayList<Lang> srcLangs, String def) {
@@ -82,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
 		fragmentManager.beginTransaction()
 				.addToBackStack(null)
 				.replace(R.id.container, fragment)
+				.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
 				.commitAllowingStateLoss();
 	}
 

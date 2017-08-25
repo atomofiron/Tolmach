@@ -3,7 +3,6 @@ package io.atomofiron.tolmach.fragments;
 import android.Manifest;
 import android.content.SharedPreferences;
 import android.os.Build;
-import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -49,7 +48,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	private static String RECOGNIZER_STARTED_KEY = "RECOGNIZER_STARTED_KEY";
 	private static String DST_LANGUAGES_ARE_LOADED_KEY = "DST_LANGUAGES_ARE_LOADED_KEY";
 	private View fragmentView = null;
-	private FloatingActionButton frb;
+	private FloatingActionButton fab;
 	private View anchor;
 	private ButtonList buttonSrcList;
 	private ButtonList buttonDstList;
@@ -104,8 +103,8 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 		yandexTranslateLabel.setText(Html.fromHtml(getString(R.string.use_service_translate)));
 		yandexTranslateLabel.setMovementMethod(LinkMovementMethod.getInstance());
 
-		frb = (FloatingActionButton) fragmentView.findViewById(R.id.fab);
-		frb.setOnClickListener(new View.OnClickListener() {
+		fab = (FloatingActionButton) fragmentView.findViewById(R.id.fab);
+		fab.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				if (!v.isActivated())
 					checkPermissionAndStart();
@@ -138,10 +137,8 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 		recyclerView.setAdapter(phraseAdapter);
 		phraseAdapter.setAutoVocalize(sp.getBoolean(I.PREF_AUTO_VOCALIZE, false));
 
-		if (savedInstanceState != null) {
+		if (savedInstanceState != null)
 			phraseAdapter.setPhrases(Phrase.parce(savedInstanceState.getParcelableArrayList(PHRASES_KEY)));
-
-		}
 
 		return fragmentView;
 	}
@@ -168,7 +165,6 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	@Override
 	public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
 		super.onViewStateRestored(savedInstanceState);
-		I.log("onViewStateRestored()");
 
 		if (savedInstanceState == null)
 			return;
@@ -181,19 +177,18 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		I.log("onSaveInstanceState()");
 		outState.putParcelable(SRC_LANG_ARG_KEY, buttonSrcList.getCurrent());
 		outState.putParcelable(DST_LANG_ARG_KEY, buttonDstList.getCurrent());
 		outState.putParcelableArrayList(SRC_LANGS_ARG_KEY, buttonSrcList.getList());
 		outState.putParcelableArrayList(DST_LANGS_ARG_KEY, buttonDstList.getList());
 		outState.putParcelableArrayList(PHRASES_KEY, phraseAdapter.getPhrases());
-		outState.putBoolean(RECOGNIZER_STARTED_KEY, frb.isActivated());
+		outState.putBoolean(RECOGNIZER_STARTED_KEY, fab.isActivated());
 		outState.putBoolean(DST_LANGUAGES_ARE_LOADED_KEY, buttonDstList.isEnabled());
 		super.onSaveInstanceState(outState);
 	}
 
 	private void onSrcLangChanged() {
-		frb.setEnabled(false);
+		fab.setEnabled(false);
 		recognizer.cancel();
 
 		buttonSrcList.setEnabled(false);
@@ -237,16 +232,15 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	}
 
 	private void start() {
-		frb.setActivated(true);
+		fab.setActivated(true);
 
 		if (!recognizer.start(buttonSrcList.getCurrent().code))
 			reset();
 	}
 
 	private void reset() {
-		I.log("cancel()");
-		frb.setActivated(false);
-		frb.setEnabled(true);
+		fab.setActivated(false);
+		fab.setEnabled(true);
 
 		recognizer.cancel();
 	}
