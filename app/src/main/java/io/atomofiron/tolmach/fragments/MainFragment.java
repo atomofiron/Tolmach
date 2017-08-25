@@ -98,10 +98,6 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 
 		fragmentView = inflater.inflate(R.layout.fragment_main, container, false);
 
-		TextView yandexTranslateLabel = (TextView) fragmentView.findViewById(R.id.yandex_translate);
-		yandexTranslateLabel.setText(Html.fromHtml(getString(R.string.use_service_translate)));
-		yandexTranslateLabel.setMovementMethod(LinkMovementMethod.getInstance());
-
 		fab = (FloatingActionButton) fragmentView.findViewById(R.id.fab);
 		fab.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -267,6 +263,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 				if (response.isSuccessful()) {
 					Phrase phrase = new Phrase(text, response.body().getText().get(0), langCode);
 					phraseAdapter.addPhrase(phrase);
+					configureTranslateLabel();
 				} else
 					onFailure(call, new Throwable(response.message()));
 			}
@@ -285,6 +282,14 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 			case R.id.dst:
 				// todo translate previous
 				break;
+		}
+	}
+
+	private void configureTranslateLabel() {
+		if (fragmentView != null) {
+			TextView yandexTranslateLabel = (TextView) fragmentView.findViewById(R.id.yandex_translate);
+			yandexTranslateLabel.setText(Html.fromHtml(getString(R.string.use_service_translate)));
+			yandexTranslateLabel.setMovementMethod(LinkMovementMethod.getInstance());
 		}
 	}
 }

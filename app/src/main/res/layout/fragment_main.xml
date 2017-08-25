@@ -19,8 +19,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textStyle="bold"
-        android:gravity="center"
+        android:gravity="left"
         android:layout_above="@+id/language_bar"
+        android:layout_margin="@dimen/item_margin"
         />
 
     <include layout="@layout/language_bar" />

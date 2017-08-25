@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Толмач</string>
     <string name="about">О программе</string>
-    <string name="use_service">&lt;a href=\'https://tech.yandex.ru/speechkit/mobilesdk/\'>Использует сервис \"Yandex SpeechKit Mobile SDK\"&lt;a></string>
+    <string name="use_service">Использует сервис \"&lt;a href=\'https://tech.yandex.ru/speechkit/mobilesdk/\'>Yandex SpeechKit Mobile SDK&lt;a>\"</string>
     <string name="use_service_translate">Переведено сервисом «&lt;a href="http://translate.yandex.ru/"&gt;Яндекс.Переводчик&lt;/a&gt;»</string>
     <string name="retry">Ещё раз</string>
     <string name="cancel">Отмена</string>
