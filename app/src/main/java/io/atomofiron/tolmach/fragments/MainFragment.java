@@ -78,7 +78,6 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		I.log("onCreate()");
 		setHasOptionsMenu(true);
 
 		sp = I.sp(getActivity());
@@ -88,14 +87,12 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		I.log("onDestroy()");
 		phraseAdapter.shutdown();
 		recognizer.cancel();
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		I.log("onCreateView()");
 		if (fragmentView != null)
 			return fragmentView;
 
@@ -200,8 +197,6 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 
 		retrofit.getLangs(BuildConfig.API_KEY_TRANSLATE, buttonSrcList.getCurrent().code).enqueue(new Callback<LangsResponse>() {
 			public void onResponse(Call<LangsResponse> call, Response<LangsResponse> response) {
-				I.log("onResponse()");
-
 				if (response.isSuccessful()) {
 					buttonSrcList.setEnabled(true);
 					buttonDstList.setList(response.body().getLangs(buttonSrcList.getCurrent().code));
@@ -214,7 +209,6 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 					onFailure(call, new Throwable(response.message()));
 			}
 			public void onFailure(Call<LangsResponse> call, Throwable t) {
-				I.log("onFailure() " + t.getMessage());
 				buttonSrcList.setEnabled(true);
 				Snackbar.make(anchor, t.getMessage(), Snackbar.LENGTH_INDEFINITE).setAction(R.string.retry, new View.OnClickListener() {
 					public void onClick(View v) {
@@ -262,8 +256,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 
 	@Override
 	public void onError(String message) {
-		I.log("error: " + message);
-			Snackbar.make(anchor, message, Snackbar.LENGTH_LONG).show();
+		Snackbar.make(anchor, message, Snackbar.LENGTH_LONG).show();
 	}
 
 	private void translate(final String text) {
