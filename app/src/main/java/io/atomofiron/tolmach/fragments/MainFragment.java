@@ -28,6 +28,7 @@ import io.atomofiron.tolmach.I;
 import io.atomofiron.tolmach.R;
 import io.atomofiron.tolmach.adapters.PhraseAdapter;
 import io.atomofiron.tolmach.custom.ButtonList;
+import io.atomofiron.tolmach.custom.VoicePowerIndicator;
 import io.atomofiron.tolmach.utils.Phrase;
 import io.atomofiron.tolmach.retrofit.Api;
 import io.atomofiron.tolmach.retrofit.LangsResponse;
@@ -52,6 +53,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	private View anchor;
 	private ButtonList buttonSrcList;
 	private ButtonList buttonDstList;
+	private VoicePowerIndicator indicator;
 
 	private SharedPreferences sp;
 	private Api retrofit;
@@ -114,6 +116,8 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 		});
 
 		anchor = fragmentView.findViewById(R.id.language_bar);
+		indicator = (VoicePowerIndicator) fragmentView.findViewById(R.id.indicator);
+		indicator.setFAB(fab);
 
 		buttonSrcList = (ButtonList) fragmentView.findViewById(R.id.src);
 		buttonDstList = (ButtonList) fragmentView.findViewById(R.id.dst);
@@ -243,11 +247,12 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 		fab.setEnabled(true);
 
 		recognizer.cancel();
+		indicator.resetScale();
 	}
 
 	@Override
 	public void onPowerUpdated(float v) {
-		// todo visualisation
+		indicator.setScale(v);
 	}
 
 	@Override

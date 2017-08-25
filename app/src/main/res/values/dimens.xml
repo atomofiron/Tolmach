@@ -1,5 +1,6 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="voice_indicator_size">360dp</dimen>
     <dimen name="item_margin">4dp</dimen>
     <dimen name="item_button_padding">8dp</dimen>
     <dimen name="item_text_margin">8dp</dimen>

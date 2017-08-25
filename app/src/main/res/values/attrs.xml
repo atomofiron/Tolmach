@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <declare-styleable name="FloatingRecordButton">
-        <attr name="enabled" format="boolean"/>
+    <declare-styleable name="VoicePowerIndicator">
+        <attr name="color" format="color"/>
     </declare-styleable>
 </resources>
