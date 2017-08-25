@@ -17,6 +17,7 @@
         style="?borderlessButtonStyle"
         android:text="src lang"
         android:textColor="@color/colorWhite"
+        android:maxLines="1"
         />
     <ImageView
         android:layout_width="wrap_content"
@@ -32,5 +33,6 @@
         style="?borderlessButtonStyle"
         android:text="dst lang"
         android:textColor="@color/colorWhite"
+        android:maxLines="1"
         />
 </LinearLayout>
