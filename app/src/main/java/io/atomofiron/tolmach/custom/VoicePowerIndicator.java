@@ -80,9 +80,9 @@ public class VoicePowerIndicator extends View implements Animation.AnimationList
 		ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) fab.getLayoutParams();
 
 		// работает пока только, если FAB в такой конфигурации
-		cx = -fabRadius / 2 - mlp.rightMargin;
-		cy = -fabRadius / 2 - mlp.bottomMargin;
-		maxRadius = fabRadius * 4;
+		cx = -fabRadius - mlp.rightMargin;
+		cy = -fabRadius - mlp.bottomMargin;
+		maxRadius = fabRadius * 5;
 	}
 
 	private void startAnim(float nextScale) {
