@@ -30,6 +30,8 @@ dependencies {
     compile "com.yandex.android:speechkit:2.5.0"
     compile "com.android.support:appcompat-v7:$supportLibVersion"
     compile "com.android.support:design:$supportLibVersion"
+    compile "com.android.support:support-v4:$supportLibVersion"
+    compile "com.android.support:preference-v14:$supportLibVersion"
     compile "com.android.support:cardview-v7:$supportLibVersion"
     compile "com.squareup.retrofit2:retrofit:$retrofit2LibVersion"
     compile "com.squareup.retrofit2:converter-gson:$retrofit2LibVersion"

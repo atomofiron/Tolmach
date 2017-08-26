@@ -12,8 +12,10 @@
     <item
         android:id="@+id/about"
         android:title="@string/about"
-        android:icon="@drawable/ic_info"
-        app:showAsAction="always"
+        />
+    <item
+        android:id="@+id/preferences"
+        android:title="@string/preferences"
         />
     <item
         android:id="@+id/remove_all"

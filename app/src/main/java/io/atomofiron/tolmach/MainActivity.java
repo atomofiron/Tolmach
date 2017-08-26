@@ -23,6 +23,7 @@ import java.util.Locale;
 
 import io.atomofiron.tolmach.fragments.AboutFragment;
 import io.atomofiron.tolmach.fragments.MainFragment;
+import io.atomofiron.tolmach.fragments.PrefFragment;
 import io.atomofiron.tolmach.utils.Lang;
 
 public class MainActivity extends AppCompatActivity {
@@ -96,6 +97,9 @@ public class MainActivity extends AppCompatActivity {
 		switch (item.getItemId()) {
 			case R.id.about:
 				addFragment(new AboutFragment());
+				break;
+			case R.id.preferences:
+				addFragment(new PrefFragment());
 				break;
 		}
 		return super.onOptionsItemSelected(item);
