@@ -19,7 +19,7 @@ public class I {
 			Vocalizer.Language.UKRAINIAN
 	};
 
-	public static final String PREF_AUTO_VOCALIZE = "auto_vocalize";
+	public static final String PREF_AUTO_SPEAK = "auto_speak";
 	public static final String PREF_RECOGNIZER = "recognizer";
 	public static final String PREF_RECOGNIZER_YANDEX = "0";
 	public static final String PREF_RECOGNIZER_GOOGLE = "1";

@@ -23,7 +23,7 @@
             />
 
         <ImageButton
-            android:id="@+id/button_vocalize"
+            android:id="@+id/button_speak"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0"

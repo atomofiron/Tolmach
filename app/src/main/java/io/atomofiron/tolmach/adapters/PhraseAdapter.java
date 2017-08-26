@@ -25,8 +25,8 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 	private UtteranceListener utteranceListener;
 	private final ArrayList<Phrase> phrases = new ArrayList<>();
 	private final HashMap<String, Phrase> phrasesMap = new HashMap<>();
-	private OnVocalizeStartListener onVocalizeStartListener;
-	private boolean autoVocalize = false;
+	private OnSpeakStartListener onSpeakStartListener;
+	private boolean autoSpeak = false;
 
 	public PhraseAdapter(Context context) {
 		textToSpeech = new TextToSpeech(context, null);
@@ -54,12 +54,8 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 		return phrases.size();
 	}
 
-	public boolean getAutoVocalize() {
-		return autoVocalize;
-	}
-
-	public void setAutoVocalize(boolean autoVocalize) {
-		this.autoVocalize = autoVocalize;
+	public void setAutoSpeak(boolean autoVocalize) {
+		this.autoSpeak = autoVocalize;
 	}
 
 	public void addPhrase(Phrase phrase) {
@@ -67,8 +63,8 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 		phrasesMap.put(phrase.getId(), phrase);
 		notifyDataSetChanged();
 
-		if (autoVocalize)
-			vocalize(phrase, true);
+		if (autoSpeak)
+			speak(phrase, true);
 	}
 
 	public void setPhrases(ArrayList<Phrase> phrases) {
@@ -92,14 +88,14 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 		shutUp();
 	}
 
-	private void vocalize(Phrase phrase, boolean addToqQueue) {
+	private void speak(Phrase phrase, boolean addToqQueue) {
 		textToSpeech.setLanguage(new Locale(phrase.code));
 		HashMap<String, String> map = new HashMap<>();
 		map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, phrase.getId());
 		textToSpeech.speak(phrase.translate, addToqQueue ? TextToSpeech.QUEUE_ADD : TextToSpeech.QUEUE_FLUSH, map);
 
-		if (onVocalizeStartListener != null)
-			onVocalizeStartListener.onVocalize();
+		if (onSpeakStartListener != null)
+			onSpeakStartListener.onSpeak();
 	}
 
 	public void shutUp() {
@@ -113,8 +109,8 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 		textToSpeech.shutdown();
 	}
 
-	public void setOnVocalizeStartListener(OnVocalizeStartListener listener) {
-		onVocalizeStartListener = listener;
+	public void setOnSpeakStartListener(OnSpeakStartListener listener) {
+		onSpeakStartListener = listener;
 	}
 
 	class Holder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -125,7 +121,7 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 			super(itemView);
 
 			text = (TextView) itemView.findViewById(R.id.text);
-			buttonVocalize = (ImageButton) itemView.findViewById(R.id.button_vocalize);
+			buttonVocalize = (ImageButton) itemView.findViewById(R.id.button_speak);
 			buttonVocalize.setOnClickListener(this);
 		}
 
@@ -138,13 +134,13 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 
 				if (v.isActivated()) {
 					phrase.sound = true;
-					vocalize(phrase, false);
+					speak(phrase, false);
 				} else {
 					shutUp();
 					phrasesMap.get(utteranceListener.startedId).sound = false;
 				}
 			} else
-				vocalize(phrase, false);
+				speak(phrase, false);
 		}
 	}
 
@@ -195,7 +191,7 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 		}
 	}
 
-	public interface OnVocalizeStartListener {
-		void onVocalize();
+	public interface OnSpeakStartListener {
+		void onSpeak();
 	}
 }

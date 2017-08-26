@@ -43,7 +43,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListener, ButtonList.OnItemSelectedListener, PhraseAdapter.OnVocalizeStartListener {
+public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListener, ButtonList.OnItemSelectedListener, PhraseAdapter.OnSpeakStartListener {
 	private static String SRC_LANGS_ARG_KEY = "SRC_LANGS_ARG_KEY";
 	private static String DST_LANGS_ARG_KEY = "DST_LANGS_ARG_KEY";
 	private static String SRC_LANG_ARG_KEY = "SRC_LANG_ARG_KEY";
@@ -162,8 +162,8 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 		recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
 		phraseAdapter = new PhraseAdapter(getActivity());
 		recyclerView.setAdapter(phraseAdapter);
-		phraseAdapter.setAutoVocalize(sp.getBoolean(I.PREF_AUTO_VOCALIZE, false));
-		phraseAdapter.setOnVocalizeStartListener(this);
+		phraseAdapter.setAutoSpeak(sp.getBoolean(I.PREF_AUTO_SPEAK, false));
+		phraseAdapter.setOnSpeakStartListener(this);
 
 		if (savedInstanceState != null) {
 			ArrayList<Phrase> phrases;
@@ -177,7 +177,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
-		updateMenuVocalizeIcon(menu.findItem(R.id.auto_vocalize), sp.getBoolean(I.PREF_AUTO_VOCALIZE, false));
+		updateMenuVocalizeIcon(menu.findItem(R.id.auto_vocalize), sp.getBoolean(I.PREF_AUTO_SPEAK, false));
 	}
 
 	private void updateMenuVocalizeIcon(MenuItem item, boolean on) {
@@ -188,9 +188,9 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.auto_vocalize:
-				boolean vocalize = !sp.getBoolean(I.PREF_AUTO_VOCALIZE, false);
-				sp.edit().putBoolean(I.PREF_AUTO_VOCALIZE, vocalize).apply();
-				phraseAdapter.setAutoVocalize(vocalize);
+				boolean vocalize = !sp.getBoolean(I.PREF_AUTO_SPEAK, false);
+				sp.edit().putBoolean(I.PREF_AUTO_SPEAK, vocalize).apply();
+				phraseAdapter.setAutoSpeak(vocalize);
 				updateMenuVocalizeIcon(item, vocalize);
 				break;
 			case R.id.remove_all:
@@ -288,7 +288,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	}
 
 	@Override
-	public void onVocalize() {
+	public void onSpeak() {
 		stop();
 	}
 
@@ -301,7 +301,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	public boolean onPartialResults(String text) {
 		translate(text);
 
-		return !sp.getBoolean(I.PREF_AUTO_VOCALIZE, false);
+		return !sp.getBoolean(I.PREF_AUTO_SPEAK, false);
 	}
 
 	@Override

@@ -3,8 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <CheckBoxPreference
-        android:title="@string/auto_vocalize"
-        android:key="auto_vocalize"
+        android:title="@string/auto_speak"
+        android:key="auto_speak"
         android:defaultValue="false"
         />
     <ListPreference

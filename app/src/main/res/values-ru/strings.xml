@@ -14,7 +14,7 @@
     <string name="remove_all">Очистить</string>
     <string name="error">Ошибка: %s</string>
     <string name="preferences">Настройки</string>
-    <string name="auto_vocalize">Озвучивать автоматически</string>
+    <string name="auto_speak">Озвучивать автоматически</string>
     <string name="recognizer">Распознаватель</string>
     <string name="offline_recognition">Оффлайн распознавание</string>
     <string name="loading">Загрузка…</string>
