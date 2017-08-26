@@ -177,8 +177,10 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.auto_vocalize:
-				phraseAdapter.setAutoVocalize(!phraseAdapter.getAutoVocalize());
-				updateMenuVocalizeIcon(item, phraseAdapter.getAutoVocalize());
+				boolean vocalize = !sp.getBoolean(I.PREF_AUTO_VOCALIZE, false);
+				sp.edit().putBoolean(I.PREF_AUTO_VOCALIZE, vocalize).apply();
+				phraseAdapter.setAutoVocalize(vocalize);
+				updateMenuVocalizeIcon(item, vocalize);
 				break;
 			case R.id.remove_all:
 				phraseAdapter.clear();
@@ -275,8 +277,10 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	}
 
 	@Override
-	public void onPartialResults(String text) {
+	public boolean onPartialResults(String text) {
 		translate(text);
+
+		return !sp.getBoolean(I.PREF_AUTO_VOCALIZE, false);
 	}
 
 	@Override

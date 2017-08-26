@@ -121,16 +121,14 @@ public class GoogleRecognizer extends VoiceRecognizer implements RecognitionList
 
 	@Override
 	public void onEndOfSpeech() {
-		I.log("onEndOfSpeech()");
+
 	}
 
 	@Override
 	public void onError(int error) {
-		I.log("onError() "+error);
 		if (voiceListener != null) {
-			if (error == ERROR_NO_MATCH || error == ERROR_SPEECH_TIMEOUT || error == ERROR_CLIENT)
-				voiceListener.onStopSelf();
-			else
+			voiceListener.onStopSelf();
+			if (error != ERROR_NO_MATCH && error != ERROR_SPEECH_TIMEOUT && error != ERROR_CLIENT)
 				voiceListener.onError(errors.get(error >= errors.size() ? 0 : error));
 		}
 	}
@@ -138,10 +136,12 @@ public class GoogleRecognizer extends VoiceRecognizer implements RecognitionList
 	@Override
 	public void onResults(Bundle results) {
 		ArrayList<String> resultsArray = results.getStringArrayList(RESULTS_RECOGNITION);
-		if (voiceListener != null && resultsArray != null && resultsArray.size() > 0)
-			voiceListener.onPartialResults(resultsArray.get(resultsArray.size() - 1));
-
-		startListening();
+		if (voiceListener != null) {
+			if (resultsArray == null || resultsArray.size() == 0 || voiceListener.onPartialResults(resultsArray.get(0))) {
+				startListening();
+			} else
+				voiceListener.onStopSelf();
+		}
 	}
 
 	@Override

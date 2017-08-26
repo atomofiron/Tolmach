@@ -21,7 +21,8 @@ public abstract class VoiceRecognizer {
 
 	public interface VoiceListener {
 		void onPowerUpdated(float v);
-		void onPartialResults(String text);
+		/** @return listen for next */
+		boolean onPartialResults(String text);
 		void onStopSelf();
 		void onError(String message);
 	}

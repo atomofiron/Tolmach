@@ -88,8 +88,10 @@ public class YandexRecognizer extends VoiceRecognizer implements RecognizerListe
 
 	@Override
 	public void onPartialResults(Recognizer recognizer, Recognition recognition, boolean b) {
-		if (voiceListener != null && b)
-			voiceListener.onPartialResults(recognition.getBestResultText());
+		if (voiceListener != null && b && !voiceListener.onPartialResults(recognition.getBestResultText())) {
+			stop();
+			voiceListener.onStopSelf();
+		}
 	}
 
 	@Override
