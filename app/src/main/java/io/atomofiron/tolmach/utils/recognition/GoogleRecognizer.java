@@ -83,10 +83,16 @@ public class GoogleRecognizer extends VoiceRecognizer implements RecognitionList
 	}
 
 	@Override
+	public void stop() {
+		speechRecognizer.stopListening();
+	}
+
+	@Override
 	public void cancel() {
 		speechRecognizer.cancel();
 	}
 
+	@Override
 	public void destroy() {
 		cancel();
 		speechRecognizer.destroy();
@@ -121,13 +127,12 @@ public class GoogleRecognizer extends VoiceRecognizer implements RecognitionList
 	@Override
 	public void onError(int error) {
 		I.log("onError() "+error);
-		if (error == ERROR_NO_MATCH || error == ERROR_SPEECH_TIMEOUT || error == ERROR_CLIENT) {
-			cancel();
-
-			if (voiceListener != null)
+		if (voiceListener != null) {
+			if (error == ERROR_NO_MATCH || error == ERROR_SPEECH_TIMEOUT || error == ERROR_CLIENT)
 				voiceListener.onStopSelf();
-		} else if (voiceListener != null)
-			voiceListener.onError(errors.get(error >= errors.size() ? 0 : error));
+			else
+				voiceListener.onError(errors.get(error >= errors.size() ? 0 : error));
+		}
 	}
 
 	@Override

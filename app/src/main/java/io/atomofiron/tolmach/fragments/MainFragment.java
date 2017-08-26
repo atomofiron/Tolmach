@@ -213,12 +213,13 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	}
 
 	private void onSrcLangChanged() {
-		fab.setEnabled(false);
 		recognizer.cancel();
+		reset();
 
 		buttonSrcList.setEnabled(false);
 		buttonDstList.setEnabled(false);
 
+		fab.setEnabled(false);
 		retrofit.getLangs(BuildConfig.API_KEY_TRANSLATE, buttonSrcList.getCurrent().code).enqueue(new Callback<LangsResponse>() {
 			public void onResponse(Call<LangsResponse> call, Response<LangsResponse> response) {
 				if (response.isSuccessful()) {
@@ -264,7 +265,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 		fab.setActivated(false);
 		fab.setEnabled(true);
 
-		recognizer.cancel();
+		recognizer.stop();
 		indicator.resetScale();
 	}
 

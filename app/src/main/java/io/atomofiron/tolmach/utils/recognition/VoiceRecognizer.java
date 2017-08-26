@@ -11,6 +11,7 @@ public abstract class VoiceRecognizer {
 
 	public abstract void getLangs(Context context, LanguagesReceiver listener);
 	public abstract boolean start(String code);
+	public abstract void stop();
 	public abstract void cancel();
 	public abstract void destroy();
 

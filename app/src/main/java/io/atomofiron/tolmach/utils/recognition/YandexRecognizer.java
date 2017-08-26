@@ -39,6 +39,12 @@ public class YandexRecognizer extends VoiceRecognizer implements RecognizerListe
 	}
 
 	@Override
+	public void stop() {
+		if (recognizer != null)
+			recognizer.finishRecording();
+	}
+
+	@Override
 	public void cancel() {
 		if (recognizer != null)
 			recognizer.cancel();
