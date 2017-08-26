@@ -25,6 +25,7 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 	private UtteranceListener utteranceListener;
 	private final ArrayList<Phrase> phrases = new ArrayList<>();
 	private final HashMap<String, Phrase> phrasesMap = new HashMap<>();
+	private OnVocalizeStartListener onVocalizeStartListener;
 	private boolean autoVocalize = false;
 
 	public PhraseAdapter(Context context) {
@@ -88,8 +89,7 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 		phrasesMap.clear();
 		notifyDataSetChanged();
 
-		if (textToSpeech.isSpeaking())
-			textToSpeech.stop();
+		shutUp();
 	}
 
 	private void vocalize(Phrase phrase, boolean addToqQueue) {
@@ -97,10 +97,24 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 		HashMap<String, String> map = new HashMap<>();
 		map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, phrase.getId());
 		textToSpeech.speak(phrase.translate, addToqQueue ? TextToSpeech.QUEUE_ADD : TextToSpeech.QUEUE_FLUSH, map);
+
+		if (onVocalizeStartListener != null)
+			onVocalizeStartListener.onVocalize();
+	}
+
+	public void shutUp() {
+		textToSpeech.stop();
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
+			utteranceListener.onStop();
 	}
 
 	public void shutdown() {
 		textToSpeech.shutdown();
+	}
+
+	public void setOnVocalizeStartListener(OnVocalizeStartListener listener) {
+		onVocalizeStartListener = listener;
 	}
 
 	class Holder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -126,7 +140,7 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 					phrase.sound = true;
 					vocalize(phrase, false);
 				} else {
-					textToSpeech.stop();
+					shutUp();
 					phrasesMap.get(utteranceListener.startedId).sound = false;
 				}
 			} else
@@ -168,6 +182,10 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 			onDone(utteranceId);
 		}
 
+		public void onStop() {
+			onDone(startedId);
+		}
+
 		void notifyDataSetChanged() {
 			handler.post(new Runnable() {
 				public void run() {
@@ -175,5 +193,9 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 				}
 			});
 		}
+	}
+
+	public interface OnVocalizeStartListener {
+		void onVocalize();
 	}
 }

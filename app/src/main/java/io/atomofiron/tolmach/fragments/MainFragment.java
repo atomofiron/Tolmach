@@ -43,7 +43,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListener, ButtonList.OnItemSelectedListener {
+public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListener, ButtonList.OnItemSelectedListener, PhraseAdapter.OnVocalizeStartListener {
 	private static String SRC_LANGS_ARG_KEY = "SRC_LANGS_ARG_KEY";
 	private static String DST_LANGS_ARG_KEY = "DST_LANGS_ARG_KEY";
 	private static String SRC_LANG_ARG_KEY = "SRC_LANG_ARG_KEY";
@@ -163,6 +163,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 		phraseAdapter = new PhraseAdapter(getActivity());
 		recyclerView.setAdapter(phraseAdapter);
 		phraseAdapter.setAutoVocalize(sp.getBoolean(I.PREF_AUTO_VOCALIZE, false));
+		phraseAdapter.setOnVocalizeStartListener(this);
 
 		if (savedInstanceState != null) {
 			ArrayList<Phrase> phrases;
@@ -265,7 +266,9 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	private void start() {
 		fab.setActivated(true);
 
-		if (!recognizer.start(buttonSrcList.getCurrent().getFullCode()))
+		if (recognizer.start(buttonSrcList.getCurrent().getFullCode()))
+			phraseAdapter.shutUp();
+		else
 			resetFab();
 	}
 
@@ -282,6 +285,11 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	private void resetFab() {
 		fab.setActivated(false);
 		indicator.resetScale();
+	}
+
+	@Override
+	public void onVocalize() {
+		stop();
 	}
 
 	@Override
