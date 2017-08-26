@@ -63,14 +63,6 @@ public class Lang implements Parcelable, Cloneable {
 		return code+"-"+name;
 	}
 
-	public static String[] getArryString(ArrayList<Lang> langs) {
-		String[] list = new String[langs.size()];
-		for (int i = 0; i < list.length; i++)
-			list[i] = langs.get(i).name;
-
-		return list;
-	}
-
 	@Override
 	public boolean equals(Object obj) {
 		return obj != null && obj.getClass() == getClass() && code.equals(((Lang) obj).code);

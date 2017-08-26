@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import io.atomofiron.tolmach.R;
 import io.atomofiron.tolmach.utils.Lang;
+import io.atomofiron.tolmach.utils.LangUtils;
 
 public class ButtonList extends android.support.v7.widget.AppCompatButton {
 	private OnItemSelectedListener onItemSelectedListener;
@@ -77,7 +78,7 @@ public class ButtonList extends android.support.v7.widget.AppCompatButton {
 
 	private void showDialog() {
 		new AlertDialog.Builder(getContext())
-				.setItems(Lang.getArryString(list), new DialogInterface.OnClickListener() {
+				.setItems(LangUtils.getArrayString(list), new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
 						current = list.get(which);
 						updateText();
