@@ -1,6 +1,7 @@
 package io.atomofiron.tolmach.fragments;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.support.annotation.Nullable;
@@ -8,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -55,6 +57,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	private ButtonList buttonSrcList;
 	private ButtonList buttonDstList;
 	private VoicePowerIndicator indicator;
+	private AlertDialog loadingDialog;
 
 	private SharedPreferences sp;
 	private Api retrofit;
@@ -71,6 +74,14 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 		setHasOptionsMenu(true);
 
 		sp = I.sp(getActivity());
+
+		loadingDialog = new AlertDialog.Builder(getActivity())
+				.setView(R.layout.layout_loadung)
+				.setNegativeButton(R.string.quit, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						getActivity().finish();
+					}
+				}).setCancelable(false).create();
 	}
 
 	@Override
@@ -99,9 +110,10 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	}
 
 	private void loadLangs() {
+		loadingDialog.show();
 		recognizer.getLangs(getActivity(), new VoiceRecognizer.LanguagesReceiver() {
 			public void onReceive(Lang srcLang, ArrayList<Lang> srcLangs) {
-				buttonSrcList.setEnabled(true);
+				loadingDialog.hide();
 				buttonSrcList.setList(srcLangs);
 				buttonSrcList.setCurrent(srcLang);
 			}
@@ -119,7 +131,6 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 		fragmentView = inflater.inflate(R.layout.fragment_main, container, false);
 
 		fab = (FloatingActionButton) fragmentView.findViewById(R.id.fab);
-		fab.setEnabled(false);
 		fab.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				if (!v.isActivated())
@@ -143,10 +154,6 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 			buttonSrcList.setCurrent(lang = savedInstanceState.getParcelable(SRC_LANG_ARG_KEY));
 			buttonDstList.setList(langs = savedInstanceState.getParcelableArrayList(DST_LANGS_ARG_KEY));
 			buttonDstList.setCurrent(lang = savedInstanceState.getParcelable(DST_LANG_ARG_KEY));
-
-			fab.setEnabled(true);
-			buttonSrcList.setEnabled(true);
-			buttonDstList.setEnabled(true);
 		}
 		buttonSrcList.setOnItemSelectedListener(this);
 		buttonDstList.setOnItemSelectedListener(this);
@@ -221,25 +228,21 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 		recognizer.cancel();
 		reset();
 
-		buttonSrcList.setEnabled(false);
-		buttonDstList.setEnabled(false);
-
-		fab.setEnabled(false);
+		loadingDialog.show();
 		retrofit.getLangs(BuildConfig.API_KEY_TRANSLATE, buttonSrcList.getCurrent().code).enqueue(new Callback<LangsResponse>() {
 			public void onResponse(Call<LangsResponse> call, Response<LangsResponse> response) {
+				loadingDialog.hide();
 				if (response.isSuccessful()) {
-					buttonSrcList.setEnabled(true);
 					buttonDstList.setList(response.body().getLangs(buttonSrcList.getCurrent().code));
 
-					if (buttonDstList.getCurrent() != null) {
-						buttonDstList.setEnabled(true);
+					if (buttonDstList.getCurrent() != null)
 						reset();
-					}
 				} else
 					onFailure(call, new Throwable(response.message()));
 			}
 			public void onFailure(Call<LangsResponse> call, Throwable t) {
-				buttonSrcList.setEnabled(true);
+				loadingDialog.hide();
+				buttonDstList.setEnabled(false);
 				Snackbar.make(anchor, t.getMessage(), Snackbar.LENGTH_INDEFINITE).setAction(R.string.retry, new View.OnClickListener() {
 					public void onClick(View v) {
 						onSrcLangChanged();
@@ -268,7 +271,6 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 
 	private void reset() {
 		fab.setActivated(false);
-		fab.setEnabled(true);
 
 		recognizer.stop();
 		indicator.resetScale();

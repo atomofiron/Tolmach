@@ -18,7 +18,6 @@
         android:text="src lang"
         android:textColor="@color/colorWhite"
         android:maxLines="1"
-        android:enabled="false"
         />
     <ImageView
         android:layout_width="wrap_content"
@@ -35,6 +34,5 @@
         android:text="dst lang"
         android:textColor="@color/colorWhite"
         android:maxLines="1"
-        android:enabled="false"
         />
 </LinearLayout>
