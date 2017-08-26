@@ -14,9 +14,4 @@
         android:entries="@array/recognizer_arr"
         android:defaultValue="1"
         />
-    <CheckBoxPreference
-        android:title="@string/offline_recognition"
-        android:key="offline_recognition"
-        android:defaultValue="false"
-        />
 </PreferenceScreen>

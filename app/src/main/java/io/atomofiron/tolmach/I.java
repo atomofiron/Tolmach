@@ -23,7 +23,6 @@ public class I {
 	public static final String PREF_RECOGNIZER = "recognizer";
 	public static final String PREF_RECOGNIZER_YANDEX = "0";
 	public static final String PREF_RECOGNIZER_GOOGLE = "1";
-	public static final String PREF_OFFLINE_RECOGNITION = "offline_recognition";
 
 	public static void log(String log) {
 		if (BuildConfig.DEBUG)

@@ -63,14 +63,6 @@ public class PrefFragment extends PreferenceFragmentCompat implements Preference
 	@Override
 	public boolean onPreferenceChange(Preference preference, Object newValue) {
 		updateSummary(preference, newValue);
-
-		if (preference.getKey().equals(I.PREF_RECOGNIZER)) {
-			boolean google = newValue.equals(I.PREF_RECOGNIZER_GOOGLE);
-			CheckBoxPreference pref = (CheckBoxPreference) findPreference(I.PREF_OFFLINE_RECOGNITION);
-			pref.setEnabled(google);
-			if (!google)
-				pref.setChecked(false);
-		}
 		return true;
 	}
 }
