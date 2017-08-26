@@ -63,18 +63,6 @@ public class Lang implements Parcelable, Cloneable {
 		return code+"-"+name;
 	}
 
-	public static Lang parce(Parcelable p) {
-		return (Lang) p;
-	}
-
-	public static ArrayList<Lang> parce(ArrayList<Parcelable> list) {
-		ArrayList<Lang> langs = new ArrayList<>();
-		for (Parcelable p : list)
-			langs.add((Lang) p);
-
-		return langs;
-	}
-
 	public static String[] getArryString(ArrayList<Lang> langs) {
 		String[] list = new String[langs.size()];
 		for (int i = 0; i < list.length; i++)

@@ -114,16 +114,19 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 
 		buttonSrcList = (ButtonList) fragmentView.findViewById(R.id.src);
 		buttonDstList = (ButtonList) fragmentView.findViewById(R.id.dst);
+		Lang lang;
+		ArrayList<Lang> langs;
 		if (savedInstanceState == null) {
 			buttonDstList.setEnabled(false);
 			buttonSrcList.setOnItemSelectedListener(this);
-			buttonSrcList.setList(Lang.parce(getArguments().getParcelableArrayList(SRC_LANGS_ARG_KEY)));
-			buttonSrcList.setCurrent(Lang.parce(getArguments().getParcelable(SRC_LANG_ARG_KEY)));
+			buttonSrcList.setList(langs = getArguments().getParcelableArrayList(SRC_LANGS_ARG_KEY));
+			buttonSrcList.setCurrent(lang = getArguments().getParcelable(SRC_LANG_ARG_KEY));
 		} else {
-			buttonSrcList.setList(Lang.parce(savedInstanceState.getParcelableArrayList(SRC_LANGS_ARG_KEY)));
-			buttonSrcList.setCurrent(Lang.parce(savedInstanceState.getParcelable(SRC_LANG_ARG_KEY)));
-			buttonDstList.setList(Lang.parce(savedInstanceState.getParcelableArrayList(DST_LANGS_ARG_KEY)));
-			buttonDstList.setCurrent(Lang.parce(savedInstanceState.getParcelable(DST_LANG_ARG_KEY)));
+			// такая фигня это нормально? или я что-то упускаю?
+			buttonSrcList.setList(langs = savedInstanceState.getParcelableArrayList(SRC_LANGS_ARG_KEY));
+			buttonSrcList.setCurrent(lang = savedInstanceState.getParcelable(SRC_LANG_ARG_KEY));
+			buttonDstList.setList(langs = savedInstanceState.getParcelableArrayList(DST_LANGS_ARG_KEY));
+			buttonDstList.setCurrent(lang = savedInstanceState.getParcelable(DST_LANG_ARG_KEY));
 			buttonSrcList.setOnItemSelectedListener(this);
 		}
 		buttonDstList.setOnItemSelectedListener(this);
@@ -134,8 +137,10 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 		recyclerView.setAdapter(phraseAdapter);
 		phraseAdapter.setAutoVocalize(sp.getBoolean(I.PREF_AUTO_VOCALIZE, false));
 
-		if (savedInstanceState != null)
-			phraseAdapter.setPhrases(Phrase.parce(savedInstanceState.getParcelableArrayList(PHRASES_KEY)));
+		if (savedInstanceState != null) {
+			ArrayList<Phrase> phrases;
+			phraseAdapter.setPhrases(phrases = savedInstanceState.getParcelableArrayList(PHRASES_KEY));
+		}
 
 		return fragmentView;
 	}

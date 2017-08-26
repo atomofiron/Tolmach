@@ -71,6 +71,9 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 	}
 
 	public void setPhrases(ArrayList<Phrase> phrases) {
+		for (Phrase phrase : phrases)
+			phrase.sound = false;
+
 		this.phrases.clear();
 		this.phrases.addAll(phrases);
 		notifyDataSetChanged();

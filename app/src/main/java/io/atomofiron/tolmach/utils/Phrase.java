@@ -3,8 +3,6 @@ package io.atomofiron.tolmach.utils;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.ArrayList;
-
 public class Phrase implements Parcelable {
 	public String original;
 	public String translate;
@@ -22,15 +20,6 @@ public class Phrase implements Parcelable {
 		original = in.readString();
 		translate = in.readString();
 		code = in.readString();
-	}
-
-	public static ArrayList<Phrase> parce(ArrayList<Parcelable> list) {
-		ArrayList<Phrase> phrases = new ArrayList<>();
-		// такая фигня это нормально? или я что-то упускаю?
-		for (Parcelable p : list)
-			phrases.add((Phrase) p);
-
-		return phrases;
 	}
 
 	public String getId() {
