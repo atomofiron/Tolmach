@@ -34,6 +34,7 @@ import io.atomofiron.tolmach.retrofit.Api;
 import io.atomofiron.tolmach.retrofit.LangsResponse;
 import io.atomofiron.tolmach.retrofit.TranslateResponse;
 import io.atomofiron.tolmach.utils.Lang;
+import io.atomofiron.tolmach.utils.recognition.GoogleRecognizer;
 import io.atomofiron.tolmach.utils.recognition.VoiceRecognizer;
 import io.atomofiron.tolmach.utils.recognition.YandexRecognizer;
 import retrofit2.Call;
@@ -60,17 +61,6 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	private VoiceRecognizer recognizer = null;
 	private PhraseAdapter phraseAdapter;
 
-	public static MainFragment newInstance(ArrayList<Lang> srcLangs, Lang srcLang) {
-
-		Bundle args = new Bundle();
-		args.putParcelableArrayList(SRC_LANGS_ARG_KEY, srcLangs);
-		args.putParcelable(SRC_LANG_ARG_KEY, srcLang);
-
-		MainFragment fragment = new MainFragment();
-		fragment.setArguments(args);
-		return fragment;
-	}
-
 	public MainFragment() {
 		retrofit = App.getRetrofitApi();
 	}
@@ -81,20 +71,50 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 		setHasOptionsMenu(true);
 
 		sp = I.sp(getActivity());
-		recognizer = new YandexRecognizer(this);
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
 		phraseAdapter.shutdown();
-		recognizer.cancel();
+		recognizer.destroy();
+	}
+
+	private void checkRecognizerSupplier() {
+		String pref = sp.getString(I.PREF_RECOGNIZER, I.PREF_RECOGNIZER_YANDEX);
+
+		if (pref.equals(I.PREF_RECOGNIZER_YANDEX) && (recognizer == null || recognizer instanceof GoogleRecognizer)) {
+			if (recognizer != null)
+				recognizer.destroy();
+
+			recognizer = new YandexRecognizer(this);
+			loadLangs();
+		} else if (pref.equals(I.PREF_RECOGNIZER_GOOGLE) && (recognizer == null || recognizer instanceof YandexRecognizer)) {
+			if (recognizer != null)
+				recognizer.destroy();
+
+			recognizer = new GoogleRecognizer(getActivity(), this);
+			loadLangs();
+		}
+	}
+
+	private void loadLangs() {
+		recognizer.getLangs(getActivity(), new VoiceRecognizer.LanguagesReceiver() {
+			public void onReceive(Lang srcLang, ArrayList<Lang> srcLangs) {
+				buttonSrcList.setEnabled(true);
+				buttonSrcList.setList(srcLangs);
+				buttonSrcList.setCurrent(srcLang);
+			}
+		});
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		if (fragmentView != null)
+		if (fragmentView != null) {
+			checkRecognizerSupplier();
+
 			return fragmentView;
+		}
 
 		fragmentView = inflater.inflate(R.layout.fragment_main, container, false);
 
@@ -114,21 +134,18 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 
 		buttonSrcList = (ButtonList) fragmentView.findViewById(R.id.src);
 		buttonDstList = (ButtonList) fragmentView.findViewById(R.id.dst);
-		Lang lang;
-		ArrayList<Lang> langs;
-		if (savedInstanceState == null) {
-			buttonDstList.setEnabled(false);
-			buttonSrcList.setOnItemSelectedListener(this);
-			buttonSrcList.setList(langs = getArguments().getParcelableArrayList(SRC_LANGS_ARG_KEY));
-			buttonSrcList.setCurrent(lang = getArguments().getParcelable(SRC_LANG_ARG_KEY));
-		} else {
+		if (savedInstanceState != null) {
+			Lang lang;
+			ArrayList<Lang> langs;
 			// такая фигня это нормально? или я что-то упускаю?
 			buttonSrcList.setList(langs = savedInstanceState.getParcelableArrayList(SRC_LANGS_ARG_KEY));
 			buttonSrcList.setCurrent(lang = savedInstanceState.getParcelable(SRC_LANG_ARG_KEY));
 			buttonDstList.setList(langs = savedInstanceState.getParcelableArrayList(DST_LANGS_ARG_KEY));
 			buttonDstList.setCurrent(lang = savedInstanceState.getParcelable(DST_LANG_ARG_KEY));
-			buttonSrcList.setOnItemSelectedListener(this);
+			buttonSrcList.setEnabled(true);
+			buttonDstList.setEnabled(true);
 		}
+		buttonSrcList.setOnItemSelectedListener(this);
 		buttonDstList.setOnItemSelectedListener(this);
 
 		RecyclerView recyclerView = (RecyclerView) fragmentView.findViewById(R.id.recycler_view);
@@ -142,6 +159,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 			phraseAdapter.setPhrases(phrases = savedInstanceState.getParcelableArrayList(PHRASES_KEY));
 		}
 
+		checkRecognizerSupplier();
 		return fragmentView;
 	}
 
@@ -238,7 +256,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	private void start() {
 		fab.setActivated(true);
 
-		if (!recognizer.start(buttonSrcList.getCurrent().code))
+		if (!recognizer.start(buttonSrcList.getCurrent().getFullCode()))
 			reset();
 	}
 
@@ -261,7 +279,14 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	}
 
 	@Override
+	public void onStopSelf() {
+		reset();
+	}
+
+	@Override
 	public void onError(String message) {
+		reset();
+
 		Snackbar.make(anchor, message, Snackbar.LENGTH_LONG).show();
 	}
 
@@ -271,7 +296,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 		retrofit.translate(BuildConfig.API_KEY_TRANSLATE, text, langCode, I.TEXT_FORMAT_PLAIN).enqueue(new Callback<TranslateResponse>() {
 			public void onResponse(Call<TranslateResponse> call, Response<TranslateResponse> response) {
 				if (response.isSuccessful()) {
-					Phrase phrase = new Phrase(text, response.body().getText().get(0), langCode);
+					Phrase phrase = new Phrase(text, response.body().getText().get(0).replace("<censored>", "censored"), langCode);
 					phraseAdapter.addPhrase(phrase);
 					configureTranslateLabel();
 				} else

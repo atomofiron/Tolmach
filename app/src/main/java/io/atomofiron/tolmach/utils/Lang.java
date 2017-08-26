@@ -2,13 +2,12 @@ package io.atomofiron.tolmach.utils;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import java.util.ArrayList;
+import android.support.annotation.NonNull;
 
 public class Lang implements Parcelable, Cloneable {
 	public String name;
 	public String code;
-	public String country;
+	@NonNull public String country = "";
 
 	private Lang(Lang lang) {
 		this.name = lang.name == null ? "" : lang.name;
@@ -32,7 +31,7 @@ public class Lang implements Parcelable, Cloneable {
 	}
 
 	public String getFullCode() {
-		return code + "-" + country;
+		return code + (country.isEmpty() ? "" : "-" + country);
 	}
 
 	public static final Creator<Lang> CREATOR = new Creator<Lang>() {

@@ -37,11 +37,8 @@ public class MainActivity extends AppCompatActivity {
 
 		fragmentManager = getSupportFragmentManager();
 		if (fragmentManager.findFragmentById(R.id.container) == null) {
-			ArrayList<Lang> srcLangs = LangUtils.getSrcLangs();
-			String defaultCode = getResources().getConfiguration().locale.getLanguage();
-
 			fragmentManager.beginTransaction()
-					.replace(R.id.container, MainFragment.newInstance(srcLangs, LangUtils.getSrcLang(getResources(), srcLangs, defaultCode)))
+					.replace(R.id.container, new MainFragment())
 					.commitAllowingStateLoss();
 		}
 	}

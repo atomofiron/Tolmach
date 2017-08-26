@@ -1,5 +1,12 @@
 package io.atomofiron.tolmach.utils.recognition;
 
+import android.content.Context;
+
+import java.util.ArrayList;
+
+import io.atomofiron.tolmach.I;
+import io.atomofiron.tolmach.utils.Lang;
+import io.atomofiron.tolmach.utils.LangUtils;
 import ru.yandex.speechkit.Error;
 import ru.yandex.speechkit.Recognition;
 import ru.yandex.speechkit.Recognizer;
@@ -13,8 +20,16 @@ public class YandexRecognizer extends VoiceRecognizer implements RecognizerListe
 	}
 
 	@Override
+	public void getLangs(Context context, LanguagesReceiver listener) {
+		ArrayList<Lang> srcLangs = LangUtils.getSrcLangs(I.SPEECH_CODES);
+		Lang srcLang = LangUtils.getSrcLang(context.getResources(), srcLangs, context.getResources().getConfiguration().locale.getLanguage());
+
+		listener.onReceive(srcLang, srcLangs);
+	}
+
+	@Override
 	public boolean start(String code) {
-		recognizer = Recognizer.create(code, Recognizer.Model.NOTES, this, true);
+		recognizer = Recognizer.create(code.split("-")[0], Recognizer.Model.NOTES, this, true);
 		try {
 			recognizer.start();
 			return true;
@@ -27,6 +42,11 @@ public class YandexRecognizer extends VoiceRecognizer implements RecognizerListe
 	public void cancel() {
 		if (recognizer != null)
 			recognizer.cancel();
+	}
+
+	@Override
+	public void destroy() {
+		cancel();
 	}
 
 	@Override
