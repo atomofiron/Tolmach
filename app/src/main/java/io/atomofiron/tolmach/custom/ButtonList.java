@@ -77,7 +77,6 @@ public class ButtonList extends android.support.v7.widget.AppCompatButton {
 
 	private void showDialog() {
 		new AlertDialog.Builder(getContext())
-				.setCancelable(false)
 				.setItems(Lang.getArryString(list), new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
 						current = list.get(which);
