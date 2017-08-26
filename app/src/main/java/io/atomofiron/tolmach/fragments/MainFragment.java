@@ -119,6 +119,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 		fragmentView = inflater.inflate(R.layout.fragment_main, container, false);
 
 		fab = (FloatingActionButton) fragmentView.findViewById(R.id.fab);
+		fab.setEnabled(false);
 		fab.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				if (!v.isActivated())
@@ -142,6 +143,8 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 			buttonSrcList.setCurrent(lang = savedInstanceState.getParcelable(SRC_LANG_ARG_KEY));
 			buttonDstList.setList(langs = savedInstanceState.getParcelableArrayList(DST_LANGS_ARG_KEY));
 			buttonDstList.setCurrent(lang = savedInstanceState.getParcelable(DST_LANG_ARG_KEY));
+
+			fab.setEnabled(true);
 			buttonSrcList.setEnabled(true);
 			buttonDstList.setEnabled(true);
 		}
