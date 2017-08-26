@@ -136,7 +136,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 				if (!v.isActivated())
 					checkPermissionAndStart();
 				else
-					reset();
+					stop();
 			}
 		});
 
@@ -225,8 +225,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	}
 
 	private void onSrcLangChanged() {
-		recognizer.cancel();
-		reset();
+		cancel();
 
 		loadingDialog.show();
 		retrofit.getLangs(BuildConfig.API_KEY_TRANSLATE, buttonSrcList.getCurrent().code).enqueue(new Callback<LangsResponse>() {
@@ -235,14 +234,15 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 				if (response.isSuccessful()) {
 					buttonDstList.setList(response.body().getLangs(buttonSrcList.getCurrent().code));
 
-					if (buttonDstList.getCurrent() != null)
-						reset();
+					fab.setEnabled(buttonDstList.isEnabled());
 				} else
 					onFailure(call, new Throwable(response.message()));
 			}
 			public void onFailure(Call<LangsResponse> call, Throwable t) {
 				loadingDialog.hide();
-				buttonDstList.setEnabled(false);
+				buttonDstList.setList(null);
+				fab.setEnabled(false);
+
 				Snackbar.make(anchor, t.getMessage(), Snackbar.LENGTH_INDEFINITE).setAction(R.string.retry, new View.OnClickListener() {
 					public void onClick(View v) {
 						onSrcLangChanged();
@@ -266,13 +266,21 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 		fab.setActivated(true);
 
 		if (!recognizer.start(buttonSrcList.getCurrent().getFullCode()))
-			reset();
+			resetFab();
 	}
 
-	private void reset() {
-		fab.setActivated(false);
-
+	private void stop() {
 		recognizer.stop();
+		resetFab();
+	}
+
+	private void cancel() {
+		recognizer.cancel();
+		resetFab();
+	}
+
+	private void resetFab() {
+		fab.setActivated(false);
 		indicator.resetScale();
 	}
 
@@ -290,12 +298,12 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 
 	@Override
 	public void onStopSelf() {
-		reset();
+		resetFab();
 	}
 
 	@Override
 	public void onError(String message) {
-		reset();
+		resetFab();
 
 		Snackbar.make(anchor, message, Snackbar.LENGTH_LONG).show();
 	}

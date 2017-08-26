@@ -74,6 +74,7 @@ public class ButtonList extends android.support.v7.widget.AppCompatButton {
 
 	private void updateText() {
 		setText(current == null ? "null" : current.name);
+		setEnabled(current != null);
 	}
 
 	private void showDialog() {

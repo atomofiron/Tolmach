@@ -19,29 +19,29 @@ import io.atomofiron.tolmach.utils.LangUtils;
 import static android.speech.SpeechRecognizer.*;
 
 public class GoogleRecognizer extends VoiceRecognizer implements RecognitionListener {
+	private final ArrayList<String> errors = new ArrayList<>();
 	private SpeechRecognizer speechRecognizer;
-	private PackageManager packManager;
-	private Intent speechRecognizerIntent;
-	private ArrayList<String> errors = new ArrayList<>();
+	private PackageManager packageManager;
+	private String packageName;
+	private String langCode;
 
 	public GoogleRecognizer(Context context, VoiceListener listener) {
 		voiceListener = listener;
 
-		packManager = context.getPackageManager();
+		packageManager = context.getPackageManager();
+		packageName = context.getPackageName();
 		speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context);
-		speechRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-		speechRecognizerIntent.putExtra(
-				RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-				RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-		speechRecognizerIntent.putExtra(
-				RecognizerIntent.EXTRA_CALLING_PACKAGE,
-				context.getPackageName());
-		speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
 		speechRecognizer.setRecognitionListener(this);
 
 		configureErrors(context);
 	}
 
+	private Intent newIntent() {
+		return new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+				.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+				.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, packageName)
+				.putExtra(RecognizerIntent.EXTRA_LANGUAGE, langCode);
+	}
 
 	@Override
 	public void getLangs(Context context, final LanguagesReceiver listener) {
@@ -69,8 +69,8 @@ public class GoogleRecognizer extends VoiceRecognizer implements RecognitionList
 
 	@Override
 	public boolean start(String code) {
-		if (packManager.queryIntentActivities(new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0).size() > 0) {
-			speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, code.toUpperCase());
+		if (packageManager.queryIntentActivities(new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0).size() > 0) {
+			langCode = code.toUpperCase();
 
 			startListening();
 			return true;
@@ -79,7 +79,7 @@ public class GoogleRecognizer extends VoiceRecognizer implements RecognitionList
 	}
 
 	private void startListening() {
-		speechRecognizer.startListening(speechRecognizerIntent);
+		speechRecognizer.startListening(newIntent());
 	}
 
 	@Override
