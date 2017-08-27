@@ -51,7 +51,6 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	private static String PHRASES_KEY = "PHRASES_KEY";
 	private static String LANGS_LOADED_KEY = "LANGS_LOADED_KEY";
 	private static String RECOGNIZER_STARTED_KEY = "RECOGNIZER_STARTED_KEY";
-	private static String DST_LANGUAGES_ARE_LOADED_KEY = "DST_LANGUAGES_ARE_LOADED_KEY";
 	private View fragmentView = null;
 	private FloatingActionButton fab;
 	private View anchor;
@@ -121,9 +120,6 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 
 		recognizer.getLangs(getActivity(), new VoiceRecognizer.LanguagesReceiver() {
 			public void onReceive(Lang srcLang, ArrayList<Lang> srcLangs) {
-				langsAlreadyLoaded = true;
-				loadingDialog.dismiss();
-
 				buttonSrcList.setList(srcLangs);
 				buttonSrcList.setCurrent(srcLang);
 			}
@@ -222,9 +218,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 		if (savedInstanceState == null)
 			return;
 
-		if (!savedInstanceState.getBoolean(DST_LANGUAGES_ARE_LOADED_KEY, false))
-			onSrcLangChanged();
-		else if (savedInstanceState.getBoolean(RECOGNIZER_STARTED_KEY, false))
+		if (savedInstanceState.getBoolean(RECOGNIZER_STARTED_KEY, false))
 			start();
 	}
 
@@ -239,11 +233,11 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 		}
 		outState.putParcelableArrayList(PHRASES_KEY, phraseAdapter.getPhrases());
 		outState.putBoolean(RECOGNIZER_STARTED_KEY, fab.isActivated());
-		outState.putBoolean(DST_LANGUAGES_ARE_LOADED_KEY, buttonDstList.isEnabled());
 		super.onSaveInstanceState(outState);
 	}
 
 	private void onSrcLangChanged() {
+		langsAlreadyLoaded = false;
 		cancel();
 
 		loadingDialog.show();
@@ -251,14 +245,15 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 			public void onResponse(Call<LangsResponse> call, Response<LangsResponse> response) {
 				loadingDialog.dismiss();
 				if (response.isSuccessful()) {
-					buttonDstList.setList(response.body().getLangs(buttonSrcList.getCurrent().code));
+					langsAlreadyLoaded = true;
 
+					buttonDstList.setList(response.body().getLangs(buttonSrcList.getCurrent().code));
 					fab.setEnabled(buttonDstList.isEnabled());
 				} else
 					onFailure(call, new Throwable(response.message()));
 			}
 			public void onFailure(Call<LangsResponse> call, Throwable t) {
-				loadingDialog.hide();
+				loadingDialog.dismiss();
 				buttonDstList.setList(null);
 				fab.setEnabled(false);
 
