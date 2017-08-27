@@ -68,7 +68,7 @@ public class ButtonList extends android.support.v7.widget.AppCompatButton {
 		this.current = current;
 		updateText();
 
-		if (onItemSelectedListener != null)
+		if (onItemSelectedListener != null && current != null)
 			onItemSelectedListener.onSelected(getId(), current);
 	}
 

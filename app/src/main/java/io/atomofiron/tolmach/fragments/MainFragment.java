@@ -49,7 +49,6 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	private static String SRC_LANG_ARG_KEY = "SRC_LANG_ARG_KEY";
 	private static String DST_LANG_ARG_KEY = "DST_LANG_ARG_KEY";
 	private static String PHRASES_KEY = "PHRASES_KEY";
-	private static String LANGS_LOADED_KEY = "LANGS_LOADED_KEY";
 	private static String RECOGNIZER_STARTED_KEY = "RECOGNIZER_STARTED_KEY";
 	private View fragmentView = null;
 	private FloatingActionButton fab;
@@ -63,7 +62,6 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	private Api retrofit;
 	private VoiceRecognizer recognizer = null;
 	private PhraseAdapter phraseAdapter;
-	private boolean langsAlreadyLoaded = false;
 
 	public MainFragment() {
 		retrofit = App.getRetrofitApi();
@@ -101,21 +99,21 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 
 			recognizer = new YandexRecognizer(this);
 
-			if (!langsAlreadyLoaded)
-				loadLangs();
+			loadSrcLangs();
 		} else if (pref.equals(I.PREF_RECOGNIZER_GOOGLE) && (recognizer == null || recognizer instanceof YandexRecognizer)) {
 			if (recognizer != null)
 				recognizer.destroy();
 
 			recognizer = new GoogleRecognizer(getActivity(), this);
 
-			if (!langsAlreadyLoaded)
-				loadLangs();
-		}
+			loadSrcLangs();
+		} if (buttonSrcList.getCurrent() == null)
+			loadSrcLangs();
+		else if (buttonDstList.getCurrent() == null)
+			loadDstLangs();
 	}
 
-	private void loadLangs() {
-		langsAlreadyLoaded = false;
+	private void loadSrcLangs() {
 		loadingDialog.show();
 
 		recognizer.getLangs(getActivity(), new VoiceRecognizer.LanguagesReceiver() {
@@ -177,8 +175,6 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 		if (savedInstanceState != null) {
 			ArrayList<Phrase> phrases;
 			phraseAdapter.setPhrases(phrases = savedInstanceState.getParcelableArrayList(PHRASES_KEY));
-
-			langsAlreadyLoaded = savedInstanceState.getBoolean(LANGS_LOADED_KEY, false);
 		}
 
 		checkRecognizerSupplier();
@@ -224,20 +220,18 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		if (langsAlreadyLoaded) {
-			outState.putBoolean(LANGS_LOADED_KEY, true);
-			outState.putParcelable(SRC_LANG_ARG_KEY, buttonSrcList.getCurrent());
-			outState.putParcelable(DST_LANG_ARG_KEY, buttonDstList.getCurrent());
-			outState.putParcelableArrayList(SRC_LANGS_ARG_KEY, buttonSrcList.getList());
-			outState.putParcelableArrayList(DST_LANGS_ARG_KEY, buttonDstList.getList());
-		}
+		outState.putParcelable(SRC_LANG_ARG_KEY, buttonSrcList.getCurrent());
+		outState.putParcelable(DST_LANG_ARG_KEY, buttonDstList.getCurrent());
+		outState.putParcelableArrayList(SRC_LANGS_ARG_KEY, buttonSrcList.getList());
+		outState.putParcelableArrayList(DST_LANGS_ARG_KEY, buttonDstList.getList());
+
 		outState.putParcelableArrayList(PHRASES_KEY, phraseAdapter.getPhrases());
 		outState.putBoolean(RECOGNIZER_STARTED_KEY, fab.isActivated());
 		super.onSaveInstanceState(outState);
 	}
 
-	private void onSrcLangChanged() {
-		langsAlreadyLoaded = false;
+	private void loadDstLangs() {
+		buttonDstList.setList(null);
 		cancel();
 
 		loadingDialog.show();
@@ -245,7 +239,6 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 			public void onResponse(Call<LangsResponse> call, Response<LangsResponse> response) {
 				loadingDialog.dismiss();
 				if (response.isSuccessful()) {
-					langsAlreadyLoaded = true;
 
 					buttonDstList.setList(response.body().getLangs(buttonSrcList.getCurrent().code));
 					fab.setEnabled(buttonDstList.isEnabled());
@@ -259,7 +252,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 
 				Snackbar.make(anchor, t.getMessage(), Snackbar.LENGTH_INDEFINITE).setAction(R.string.retry, new View.OnClickListener() {
 					public void onClick(View v) {
-						onSrcLangChanged();
+						loadDstLangs();
 					}
 				}).show();
 			}
@@ -351,7 +344,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	public void onSelected(int buttonId, Lang lang) {
 		switch (buttonId) {
 			case R.id.src:
-				onSrcLangChanged();
+				loadDstLangs();
 				break;
 			case R.id.dst:
 				// todo translate previous
