@@ -299,6 +299,11 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	}
 
 	@Override
+	public void onError() {
+		Snackbar.make(anchor, R.string.speak_error, Snackbar.LENGTH_LONG).show();
+	}
+
+	@Override
 	public void onPowerUpdated(float v) {
 		if (fab.isActivated())
 			indicator.setScale(v);

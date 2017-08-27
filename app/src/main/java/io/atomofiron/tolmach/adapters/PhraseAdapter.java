@@ -89,6 +89,9 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 	}
 
 	private void speak(Phrase phrase, boolean addToqQueue) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
+			utteranceListener.onStop();
+
 		textToSpeech.setLanguage(new Locale(phrase.code));
 		HashMap<String, String> map = new HashMap<>();
 		map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, phrase.getId());
@@ -174,6 +177,9 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 		@Override
 		public void onError(String utteranceId) {
 			onDone(utteranceId);
+
+			if (onSpeakStartListener != null)
+				onSpeakStartListener.onError();
 		}
 
 		public void onStop() {
@@ -191,5 +197,6 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 
 	public interface OnSpeakStartListener {
 		void onSpeak();
+		void onError();
 	}
 }

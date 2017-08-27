@@ -17,4 +17,5 @@
     <string name="auto_speak">To speak automatically</string>
     <string name="recognizer">Recognizer</string>
     <string name="loading">Loading…</string>
+    <string name="speak_error">Error speaking</string>
 </resources>
