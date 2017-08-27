@@ -120,6 +120,14 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 			public void onReceive(Lang srcLang, ArrayList<Lang> srcLangs) {
 				buttonSrcList.setList(srcLangs);
 				buttonSrcList.setCurrent(srcLang);
+
+				if (buttonSrcList.getCurrent() == null) {
+					loadingDialog.dismiss();
+					fab.setEnabled(false);
+					buttonDstList.setEnabled(false);
+
+					Snackbar.make(anchor, R.string.no_languages, Snackbar.LENGTH_SHORT).show();
+				}
 			}
 		});
 	}

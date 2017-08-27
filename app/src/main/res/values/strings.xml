@@ -18,4 +18,5 @@
     <string name="recognizer">Recognizer</string>
     <string name="loading">Loading…</string>
     <string name="speak_error">Error speaking</string>
+    <string name="no_languages">No languages supported</string>
 </resources>

@@ -20,6 +20,9 @@ public class LangUtils {
 	}
 
 	public static Lang getSrcLang(Resources resources, ArrayList<Lang> srcLangs, String def) {
+		if (srcLangs == null || srcLangs.size() == 0)
+			return null;
+
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 			LocaleList localeList = resources.getConfiguration().getLocales();
 			for (int i = 0; i < localeList.size(); i++)
@@ -37,6 +40,9 @@ public class LangUtils {
 	public static ArrayList<Lang> getSrcLangs(String[] srcCodes) {
 		ArrayList<Lang> langs = new ArrayList<>();
 
+		if (srcCodes == null || srcCodes.length == 0)
+			return langs;
+
 		for (String code : srcCodes)
 			langs.add(new Lang(code, code));
 
@@ -50,6 +56,9 @@ public class LangUtils {
 
 	public static ArrayList<Lang> getSrcLangs(ArrayList<CharSequence> srcCodes) {
 		ArrayList<Lang> langs = new ArrayList<>();
+
+		if (srcCodes == null || srcCodes.size() == 0)
+			return langs;
 
 		for (CharSequence code : srcCodes) {
 			String[] parts = code.toString().split("-");
