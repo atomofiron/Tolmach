@@ -14,6 +14,7 @@ import ru.yandex.speechkit.RecognizerListener;
 
 public class YandexRecognizer extends VoiceRecognizer implements RecognizerListener {
 	private Recognizer recognizer = null;
+	private boolean recording = false;
 
 	public YandexRecognizer(VoiceListener listener) {
 		setVoiceListener(listener);
@@ -40,7 +41,7 @@ public class YandexRecognizer extends VoiceRecognizer implements RecognizerListe
 
 	@Override
 	public void stop() {
-		if (recognizer != null)
+		if (recognizer != null && recording)
 			recognizer.finishRecording();
 	}
 
@@ -57,7 +58,7 @@ public class YandexRecognizer extends VoiceRecognizer implements RecognizerListe
 
 	@Override
 	public void onRecordingBegin(Recognizer recognizer) {
-
+		recording = true;
 	}
 
 	@Override
@@ -72,7 +73,8 @@ public class YandexRecognizer extends VoiceRecognizer implements RecognizerListe
 
 	@Override
 	public void onRecordingDone(Recognizer recognizer) {
-
+		voiceListener.onStopSelf();
+		recording = false;
 	}
 
 	@Override
