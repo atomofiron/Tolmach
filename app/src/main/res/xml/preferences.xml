@@ -12,6 +12,6 @@
         android:key="recognizer"
         android:entryValues="@array/recognizer_arr_val"
         android:entries="@array/recognizer_arr"
-        android:defaultValue="1"
+        android:defaultValue="0"
         />
 </PreferenceScreen>
