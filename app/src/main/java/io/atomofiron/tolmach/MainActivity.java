@@ -11,6 +11,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -27,6 +28,7 @@ import io.atomofiron.tolmach.utils.LangUtils;
 
 public class MainActivity extends AppCompatActivity {
 	private FragmentManager fragmentManager = null;
+	private ActionBar actionBar;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_main);
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
+		actionBar = getSupportActionBar();
 
 		fragmentManager = getSupportFragmentManager();
 		if (fragmentManager.findFragmentById(R.id.container) == null) {
@@ -44,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private void addFragment(Fragment fragment) {
+		actionBar.setDisplayHomeAsUpEnabled(true);
+
 		fragmentManager.beginTransaction()
 				.addToBackStack(null)
 				.replace(R.id.container, fragment)
@@ -66,8 +71,19 @@ public class MainActivity extends AppCompatActivity {
 			case R.id.preferences:
 				addFragment(new PrefFragment());
 				break;
+			case android.R.id.home:
+				onBackPressed();
+				break;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+
+		if (fragmentManager.getBackStackEntryCount() == 0)
+			actionBar.setDisplayHomeAsUpEnabled(false);
 	}
 
 	@TargetApi(Build.VERSION_CODES.M)
