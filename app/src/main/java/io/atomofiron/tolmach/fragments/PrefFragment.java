@@ -9,8 +9,11 @@ import android.support.v7.preference.EditTextPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import io.atomofiron.tolmach.I;
 import io.atomofiron.tolmach.R;
@@ -29,6 +32,13 @@ public class PrefFragment extends PreferenceFragmentCompat implements Preference
 		sp = I.sp(getActivity());
 
 		setListeners(getPreferenceScreen());
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		getActivity().setTitle(R.string.preferences);
+
+		return super.onCreateView(inflater, container, savedInstanceState);
 	}
 
 	@Override

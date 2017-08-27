@@ -122,8 +122,11 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		getActivity().setTitle(R.string.app_name);
+
 		if (fragmentView != null) {
 			checkRecognizerSupplier();
+			getActivity().setTitle(R.string.app_name);
 
 			return fragmentView;
 		}
