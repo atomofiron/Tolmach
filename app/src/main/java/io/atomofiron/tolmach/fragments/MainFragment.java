@@ -319,7 +319,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	public boolean onPartialResults(String text) {
 		translate(text);
 
-		return !sp.getBoolean(I.PREF_AUTO_SPEAK, false);
+		return !sp.getBoolean(I.PREF_AUTO_SPEAK, false) && fab.isActivated();
 	}
 
 	@Override
