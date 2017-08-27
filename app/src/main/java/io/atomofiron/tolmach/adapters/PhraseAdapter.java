@@ -135,10 +135,8 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 				if (v.isActivated()) {
 					phrase.sound = true;
 					speak(phrase, false);
-				} else {
+				} else
 					shutUp();
-					phrasesMap.get(utteranceListener.startedId).sound = false;
-				}
 			} else
 				speak(phrase, false);
 		}
