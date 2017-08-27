@@ -65,6 +65,7 @@ public class GoogleRecognizer extends VoiceRecognizer implements RecognitionList
 		errors.add(context.getString(R.string.error, "no match"));
 		errors.add(context.getString(R.string.error, "recognizer busy"));
 		errors.add(context.getString(R.string.error, "insufficient permissions"));
+		errors.add(context.getString(R.string.error, "service is not supported"));
 	}
 
 	@Override
@@ -74,8 +75,10 @@ public class GoogleRecognizer extends VoiceRecognizer implements RecognitionList
 
 			startListening();
 			return true;
-		} else
+		} else {
+			onError(10);
 			return false;
+		}
 	}
 
 	private void startListening() {
