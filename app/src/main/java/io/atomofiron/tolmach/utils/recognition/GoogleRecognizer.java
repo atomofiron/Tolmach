@@ -11,7 +11,6 @@ import android.speech.SpeechRecognizer;
 
 import java.util.ArrayList;
 
-import io.atomofiron.tolmach.I;
 import io.atomofiron.tolmach.R;
 import io.atomofiron.tolmach.utils.Lang;
 import io.atomofiron.tolmach.utils.LangUtils;
@@ -133,7 +132,7 @@ public class GoogleRecognizer extends VoiceRecognizer implements RecognitionList
 	public void onError(int error) {
 		if (voiceListener != null) {
 			if (error != ERROR_NO_MATCH && error != ERROR_SPEECH_TIMEOUT && error != ERROR_CLIENT)
-				voiceListener.onError(errors.get(error >= errors.size() ? 0 : error));
+				voiceListener.onListeningError(errors.get(error >= errors.size() ? 0 : error));
 		}
 	}
 

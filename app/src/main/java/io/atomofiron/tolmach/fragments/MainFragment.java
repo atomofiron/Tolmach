@@ -343,7 +343,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	}
 
 	@Override
-	public void onError(String message) {
+	public void onListeningError(String message) {
 		Snackbar.make(anchor, message, Snackbar.LENGTH_LONG).show();
 
 		resetFab(true);

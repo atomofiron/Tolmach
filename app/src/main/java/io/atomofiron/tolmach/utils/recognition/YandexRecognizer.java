@@ -107,6 +107,6 @@ public class YandexRecognizer extends VoiceRecognizer implements RecognizerListe
 	@Override
 	public void onError(Recognizer recognizer, Error error) {
 		if (voiceListener != null && error.getCode() != Error.ERROR_CANCELED)
-			voiceListener.onError(error.getString());
+			voiceListener.onListeningError(error.getString());
 	}
 }
