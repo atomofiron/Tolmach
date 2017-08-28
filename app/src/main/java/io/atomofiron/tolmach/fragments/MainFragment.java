@@ -138,7 +138,6 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 
 		if (fragmentView != null) {
 			checkRecognizerSupplier();
-			getActivity().setTitle(R.string.app_name);
 
 			return fragmentView;
 		}
