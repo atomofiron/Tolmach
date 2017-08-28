@@ -319,10 +319,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 
 	@Override
 	public void onPowerUpdated(float v) {
-		if (fab.isActivated())
-			indicator.setScale(v);
-		else
-			stop();
+		indicator.setScale(v);
 	}
 
 	@Override
