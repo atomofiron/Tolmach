@@ -4,7 +4,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import android.support.annotation.Nullable;
-import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.preference.EditTextPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;

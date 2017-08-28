@@ -18,13 +18,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.ArrayList;
-
 import io.atomofiron.tolmach.fragments.AboutFragment;
 import io.atomofiron.tolmach.fragments.MainFragment;
 import io.atomofiron.tolmach.fragments.PrefFragment;
-import io.atomofiron.tolmach.utils.Lang;
-import io.atomofiron.tolmach.utils.LangUtils;
 
 public class MainActivity extends AppCompatActivity {
 	private FragmentManager fragmentManager = null;
