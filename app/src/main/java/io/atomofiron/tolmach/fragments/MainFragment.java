@@ -313,7 +313,7 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	}
 
 	@Override
-	public void onError() {
+	public void onSpeakError() {
 		Snackbar.make(anchor, R.string.speak_error, Snackbar.LENGTH_LONG).show();
 	}
 

@@ -179,7 +179,7 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 			onDone(utteranceId);
 
 			if (onSpeakStartListener != null)
-				onSpeakStartListener.onError();
+				onSpeakStartListener.onSpeakError();
 		}
 
 		public void onStop() {
@@ -197,6 +197,6 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 
 	public interface OnSpeakStartListener {
 		void onSpeak();
-		void onError();
+		void onSpeakError();
 	}
 }
