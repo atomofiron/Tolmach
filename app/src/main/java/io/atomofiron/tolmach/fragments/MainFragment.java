@@ -150,8 +150,11 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 			public void onClick(View v) {
 				if (!v.isActivated())
 					checkPermissionAndStart();
-				else
+				else {
 					stop();
+
+					resetFab(false);
+				}
 			}
 		});
 
@@ -278,26 +281,29 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	}
 
 	private void start() {
-		fab.setActivated(true);
-
-		if (recognizer.start(buttonSrcList.getCurrent().getFullCode()))
+		if (recognizer.start(buttonSrcList.getCurrent().getFullCode())) {
 			phraseAdapter.shutUp();
-		else
-			resetFab();
+
+			activateFab(false);
+		}
 	}
 
 	private void stop() {
 		recognizer.stop();
-		resetFab();
 	}
 
 	private void cancel() {
 		recognizer.cancel();
-		resetFab();
 	}
 
-	private void resetFab() {
+	private void activateFab(boolean enable) {
+		fab.setActivated(true);
+		fab.setEnabled(enable);
+	}
+
+	private void resetFab(boolean enable) {
 		fab.setActivated(false);
+		fab.setEnabled(enable);
 		indicator.resetScale();
 	}
 
@@ -323,19 +329,24 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 	public boolean onPartialResults(String text) {
 		translate(text);
 
-		return !sp.getBoolean(I.PREF_AUTO_SPEAK, false) && fab.isActivated();
+		return !sp.getBoolean(I.PREF_AUTO_SPEAK, false);
 	}
 
 	@Override
-	public void onStopSelf() {
-		resetFab();
+	public void onStartListening() {
+		activateFab(true);
+	}
+
+	@Override
+	public void onStopListening() {
+		resetFab(true);
 	}
 
 	@Override
 	public void onError(String message) {
-		resetFab();
-
 		Snackbar.make(anchor, message, Snackbar.LENGTH_LONG).show();
+
+		resetFab(true);
 	}
 
 	private void translate(final String text) {

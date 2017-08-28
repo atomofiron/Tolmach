@@ -20,10 +20,11 @@ public abstract class VoiceRecognizer {
 	}
 
 	public interface VoiceListener {
+		void onStartListening();
+		void onStopListening();
 		void onPowerUpdated(float v);
 		/** @return listen for next */
 		boolean onPartialResults(String text);
-		void onStopSelf();
 		void onError(String message);
 	}
 
