@@ -245,7 +245,11 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 		cancel();
 
 		loadingDialog.show();
-		retrofit.getLangs(BuildConfig.API_KEY_TRANSLATE, buttonSrcList.getCurrent().code).enqueue(new Callback<LangsResponse>() {
+
+		String uiCode = getResources().getConfiguration().locale.getLanguage();
+		uiCode = uiCode.isEmpty() ? buttonSrcList.getCurrent().code : uiCode;
+
+		retrofit.getLangs(BuildConfig.API_KEY_TRANSLATE, uiCode).enqueue(new Callback<LangsResponse>() {
 			public void onResponse(Call<LangsResponse> call, Response<LangsResponse> response) {
 				loadingDialog.dismiss();
 				if (response.isSuccessful()) {

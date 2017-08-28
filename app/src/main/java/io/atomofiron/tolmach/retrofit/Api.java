@@ -8,7 +8,7 @@ import retrofit2.http.Query;
 public interface Api {
 
     @GET("/api/v1.5/tr.json/getLangs")
-    Call<LangsResponse> getLangs(@Query("key") String key, @Query("ui") String code);
+    Call<LangsResponse> getLangs(@Query("key") String key, @Query("ui") String uiCode);
 
     @GET("api/v1.5/tr.json/translate")
     Call<TranslateResponse> translate(@Query("key") String key, @Query("text") String text,
