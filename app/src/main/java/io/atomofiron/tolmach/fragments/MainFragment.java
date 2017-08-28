@@ -249,8 +249,9 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 			public void onResponse(Call<LangsResponse> call, Response<LangsResponse> response) {
 				loadingDialog.dismiss();
 				if (response.isSuccessful()) {
-
 					buttonDstList.setList(response.body().getLangs(buttonSrcList.getCurrent().code));
+					buttonDstList.setCurrentByCodeIfContains(buttonSrcList.getCurrent().code.equals("en") ? "ru" : "en");
+
 					fab.setEnabled(buttonDstList.isEnabled());
 				} else
 					onFailure(call, new Throwable(response.message()));

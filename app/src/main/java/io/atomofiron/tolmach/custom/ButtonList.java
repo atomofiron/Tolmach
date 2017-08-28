@@ -72,6 +72,12 @@ public class ButtonList extends android.support.v7.widget.AppCompatButton {
 			onItemSelectedListener.onSelected(getId(), current);
 	}
 
+	public void setCurrentByCodeIfContains(String code) {
+		Lang lang = new Lang(code, code);
+		if (list.contains(lang))
+			setCurrent(list.get(list.indexOf(lang)));
+	}
+
 	private void updateText() {
 		setText(current == null ? "null" : current.name);
 		setEnabled(current != null);
