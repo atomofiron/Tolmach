@@ -23,6 +23,7 @@ public class GoogleRecognizer extends VoiceRecognizer implements RecognitionList
 	private PackageManager packageManager;
 	private String packageName;
 	private String langCode;
+	private boolean selfStopped;
 
 	public GoogleRecognizer(Context context, VoiceListener listener) {
 		voiceListener = listener;
@@ -81,11 +82,15 @@ public class GoogleRecognizer extends VoiceRecognizer implements RecognitionList
 	}
 
 	private void startListening() {
+		selfStopped = true;
+
 		speechRecognizer.startListening(newIntent());
 	}
 
 	@Override
 	public void stop() {
+		selfStopped = false;
+
 		speechRecognizer.stopListening();
 	}
 
@@ -140,7 +145,7 @@ public class GoogleRecognizer extends VoiceRecognizer implements RecognitionList
 	public void onResults(Bundle results) {
 		ArrayList<String> resultsArray = results.getStringArrayList(RESULTS_RECOGNITION);
 		if (resultsArray == null || resultsArray.size() == 0 ||
-				voiceListener != null && voiceListener.onPartialResults(resultsArray.get(0)))
+				voiceListener != null && voiceListener.onPartialResults(resultsArray.get(0)) && selfStopped)
 				startListening();
 	}
 
