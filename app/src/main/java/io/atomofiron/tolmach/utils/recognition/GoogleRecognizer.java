@@ -107,13 +107,13 @@ public class GoogleRecognizer extends VoiceRecognizer implements RecognitionList
 
 	@Override
 	public void onReadyForSpeech(Bundle params) {
-
+		if (voiceListener != null)
+			voiceListener.onStartListening();
 	}
 
 	@Override
 	public void onBeginningOfSpeech() {
-		if (voiceListener != null)
-			voiceListener.onStartListening();
+
 	}
 
 	@Override
