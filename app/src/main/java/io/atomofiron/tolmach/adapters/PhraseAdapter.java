@@ -49,7 +49,7 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 	public void onBindViewHolder(Holder holder, int position) {
 		Phrase phrase = phrases.get(position);
 		holder.text.setText(phrase.translate);
-		holder.buttonVocalize.setActivated(phrase.sound);
+		holder.buttonVocalize.setActivated(phrase.isVoiced);
 	}
 
 	@Override
@@ -68,7 +68,7 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 
 	public void setPhrases(ArrayList<Phrase> phrases) {
 		for (Phrase phrase : phrases)
-			phrase.sound = false;
+			phrase.isVoiced = false;
 
 		this.phrases.clear();
 		this.phrases.addAll(phrases);
@@ -135,7 +135,7 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 				v.setActivated(!v.isActivated());
 
 				if (v.isActivated()) {
-					phrase.sound = true;
+					phrase.isVoiced = true;
 					speak(phrase, false);
 				} else
 					shutUp();
@@ -157,8 +157,8 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 		public void onStart(String utteranceId) {
 			startedId = utteranceId;
 			Phrase phrase = phrasesMap.get(utteranceId);
-			if (phrase != null && !phrase.sound) {
-				phrase.sound = true;
+			if (phrase != null && !phrase.isVoiced) {
+				phrase.isVoiced = true;
 				notifyDataSetChanged();
 			}
 		}
@@ -167,8 +167,8 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 		public void onDone(String utteranceId) {
 			startedId = "";
 			Phrase phrase = phrasesMap.get(utteranceId);
-			if (phrase != null && phrase.sound) {
-				phrase.sound = false;
+			if (phrase != null && phrase.isVoiced) {
+				phrase.isVoiced = false;
 				notifyDataSetChanged();
 			}
 		}

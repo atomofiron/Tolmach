@@ -7,7 +7,7 @@ public class Phrase implements Parcelable {
 	public String original;
 	public String translate;
 	public String code;
-	public boolean sound = false;
+	public boolean isVoiced = false;
 	private final String id = String.valueOf(System.currentTimeMillis());
 
 	public Phrase(String original, String translate, String code) {
