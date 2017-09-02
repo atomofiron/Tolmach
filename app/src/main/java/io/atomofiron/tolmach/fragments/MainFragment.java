@@ -179,7 +179,6 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 		recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
 		phraseAdapter = new PhraseAdapter(getActivity());
 		recyclerView.setAdapter(phraseAdapter);
-		phraseAdapter.setAutoSpeak(sp.getBoolean(I.PREF_AUTO_SPEAK, false));
 		phraseAdapter.setOnSpeakStartListener(this);
 
 		if (savedInstanceState != null) {
@@ -207,7 +206,6 @@ public class MainFragment extends Fragment implements VoiceRecognizer.VoiceListe
 			case R.id.auto_vocalize:
 				boolean vocalize = !sp.getBoolean(I.PREF_AUTO_SPEAK, false);
 				sp.edit().putBoolean(I.PREF_AUTO_SPEAK, vocalize).apply();
-				phraseAdapter.setAutoSpeak(vocalize);
 				updateMenuVocalizeIcon(item, vocalize);
 				break;
 			case R.id.remove_all:

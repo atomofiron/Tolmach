@@ -1,6 +1,7 @@
 package io.atomofiron.tolmach.adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Handler;
 import android.speech.tts.TextToSpeech;
@@ -17,18 +18,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 
+import io.atomofiron.tolmach.I;
 import io.atomofiron.tolmach.R;
 import io.atomofiron.tolmach.utils.Phrase;
 
 public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
+	private SharedPreferences sp;
 	private TextToSpeech textToSpeech;
 	private UtteranceListener utteranceListener;
 	private final ArrayList<Phrase> phrases = new ArrayList<>();
 	private final HashMap<String, Phrase> phrasesMap = new HashMap<>();
 	private OnSpeakStartListener onSpeakStartListener;
-	private boolean autoSpeak = false;
 
 	public PhraseAdapter(Context context) {
+		sp = I.sp(context);
 		textToSpeech = new TextToSpeech(context, null);
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
@@ -54,16 +57,12 @@ public class PhraseAdapter extends RecyclerView.Adapter<PhraseAdapter.Holder> {
 		return phrases.size();
 	}
 
-	public void setAutoSpeak(boolean autoVocalize) {
-		this.autoSpeak = autoVocalize;
-	}
-
 	public void addPhrase(Phrase phrase) {
 		phrases.add(0, phrase);
 		phrasesMap.put(phrase.getId(), phrase);
 		notifyDataSetChanged();
 
-		if (autoSpeak)
+		if (sp.getBoolean(I.PREF_AUTO_SPEAK, false))
 			speak(phrase, true);
 	}
 
